@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hành Trang Demo</title>
+<meta name="description" content="Demo bấm từng bước app Hành Trang: trưởng đoàn khởi tạo đoàn land tour, thành viên bổ sung giấy tờ, điểm danh, đổi lịch, nhật ký chuyến đi.">
+<meta property="og:title" content="Hành Trang Demo">
+<meta property="og:description" content="Demo bấm từng bước app Hành Trang cho đoàn du lịch theo nhóm. Dữ liệu minh hoạ.">
+<meta name="theme-color" content="#16213E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B24A6E' stroke-width='1.8'%3E%3Cpath d='M12 20c-2.4-1.7-3.6-4.2-3.6-7.1S9.8 7.4 12 5c2.2 2.4 3.6 5 3.6 7.9s-1.2 5.4-3.6 7.1zM12 20c-4.2 0-7.3-2.4-8.3-6.1 2.6-.1 4.8.8 6.3 2.4M12 20c4.2 0 7.3-2.4 8.3-6.1-2.6-.1-4.8.8-6.3 2.4'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@600;700&display=swap">
+<style>
+/* Layout: danh sách bước | điện thoại mô phỏng | lời dẫn; thu về một cột trên điện thoại */
+:root{
+  --bg:#ECE6DA; --surface:#FBF8F2; --surface-2:#F3EEE4; --line:#D9D1C2;
+  --fg:#1A2236; --fg-soft:#4A5470; --fg-mute:#6A7390;
+  --accent:#C63C23; --accent-ink:#FFFFFF;
+  --lotus:#B24A6E; --lotus-bg:#F8E6EC;
+  --night:#16213E;
+  --font-display:'Noto Serif', Georgia, serif;
+  --font-body:'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1322; --surface:#161D31; --surface-2:#1C2540; --line:#2B3655;
+  --fg:#E7EAF3; --fg-soft:#B7BFD4; --fg-mute:#99A2BC;
+  --accent:#E8694F; --accent-ink:#1A0D09;
+  --lotus:#EE93B2; --lotus-bg:#3A2130; --night:#0B1022; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1322; --surface:#161D31; --surface-2:#1C2540; --line:#2B3655;
+  --fg:#E7EAF3; --fg-soft:#B7BFD4; --fg-mute:#99A2BC;
+  --accent:#E8694F; --accent-ink:#1A0D09;
+  --lotus:#EE93B2; --lotus-bg:#3A2130; --night:#0B1022; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,p{margin:0}
+button{font:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.top{max-width:1360px;margin:0 auto;padding-block:18px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-family:var(--font-display);font-size:22px;line-height:1.2}
+.brand small{display:block;font-size:12px;color:var(--fg-mute);font-family:var(--font-body);font-weight:500;letter-spacing:.02em}
+.sample{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--fg-soft);border:1px solid var(--line)}
+.chapters{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.chapters button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg-soft);cursor:pointer;font-size:13px;font-weight:600}
+.chapters button[aria-current="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.stage{max-width:1360px;margin:0 auto;padding-block:8px 32px;display:grid;grid-template-columns:250px minmax(0,380px) minmax(0,1fr);gap:28px;align-items:start}
+.steps{position:sticky;top:max(12px,env(safe-area-inset-top,0px));max-height:calc(100vh - 24px);overflow:auto;padding-right:4px}
+.steps h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-mute);margin:14px 0 6px;font-weight:700}
+.steps h2:first-child{margin-top:0}
+.steps ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.steps button{width:100%;text-align:left;display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:10px;border:0;background:transparent;color:var(--fg-soft);cursor:pointer;font-size:13.5px;line-height:1.35}
+.steps button .n{font-variant-numeric:tabular-nums;color:var(--fg-mute);font-size:12px;min-width:20px}
+.steps button:hover{background:var(--surface-2)}
+.steps button[aria-current="step"]{background:var(--surface);color:var(--fg);font-weight:600;box-shadow:inset 0 0 0 1px var(--line)}
+.steps button.done .n{color:var(--accent)}
+
+.device-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;position:sticky;top:max(12px,env(safe-area-inset-top,0px))}
+.device{width:360px;max-width:100%;height:740px;border-radius:44px;padding:12px;background:#0B0F1C;box-shadow:0 1px 0 #2a3150 inset,0 24px 50px -20px rgba(10,14,30,.55)}
+.screen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:#F4F0E8}
+.screen-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.screen-scroll::-webkit-scrollbar{display:none}
+.device-cap{font-size:12px;color:var(--fg-mute)}
+
+.narr{min-width:0;display:flex;flex-direction:column;gap:18px;padding-top:4px}
+.narr .chap{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.narr h2{font-family:var(--font-display);font-size:30px;line-height:1.2;text-wrap:balance}
+.who{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--fg-soft);padding:4px 12px 4px 4px;border-radius:999px;background:var(--surface);border:1px solid var(--line);align-self:flex-start}
+.who .av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
+.block{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;max-width:62ch}
+.block h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-mute);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.block ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.block p + p{margin-top:8px}
+.block.sen{background:var(--lotus-bg);border-color:transparent}
+.block.sen h3{color:var(--lotus)}
+.block.note{background:transparent;border-style:dashed}
+.say{font-family:var(--font-display);font-size:17px;line-height:1.5;color:var(--fg-soft);max-width:62ch;padding-left:14px;border-left:3px solid var(--line)}
+
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav button{min-height:46px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-weight:600;cursor:pointer}
+.nav button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.nav button:disabled{opacity:.45;cursor:default}
+.nav .count{font-variant-numeric:tabular-nums;color:var(--fg-mute);font-size:13px;margin:0 6px}
+.hint-line{font-size:12.5px;color:var(--fg-mute)}
+.hint-line kbd{font-family:var(--font-body);font-size:11px;padding:1px 6px;border-radius:5px;border:1px solid var(--line);background:var(--surface)}
+
+@media (max-width:1180px){
+  .stage{grid-template-columns:minmax(0,380px) minmax(0,1fr)}
+  .steps{display:none}
+}
+@media (max-width:780px){
+  .stage{grid-template-columns:minmax(0,1fr);gap:18px}
+  .device-wrap{position:static}
+  .device{height:640px;border-radius:38px;padding:10px}
+  .screen{border-radius:30px}
+  .narr h2{font-size:24px}
+  .chapters{margin-left:0}
+  .nav{position:sticky;bottom:0;background:var(--bg);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+  .nav button{flex:1 1 auto}
+  .hint-line{display:none}
+}
+
+/* ============ Giao diện app bên trong điện thoại (bảng màu cố định của app) ============ */
+.app{font-family:var(--font-body);color:#1B2333;font-size:14.5px;line-height:1.45;min-height:100%;background:#F4F0E8;display:flex;flex-direction:column}
+.app *{box-sizing:border-box}
+.app .hd{position:relative;background:#16213E;color:#F3F5FA;padding:14px 16px 20px;overflow:hidden}
+.app .hd .art{position:absolute;inset:0;width:100%;height:100%}
+.app .hd > *:not(.art){position:relative}
+.app .bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.app .ib{width:40px;height:40px;border-radius:12px;background:#24345E;color:#fff;display:grid;place-items:center;border:0}
+.app .meta{font-size:12px;color:#C9D2E6}
+.app .ey{font-size:11px;letter-spacing:.16em;color:#F2C14E;font-weight:600}
+.app .t1{font-family:var(--font-display);font-size:22px;line-height:1.25;font-weight:700;margin-top:4px}
+.app .sub{font-size:13px;color:#D3DAEA;margin-top:2px}
+.app .prog{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:12px;font-size:10.5px;color:#C9D2E6}
+.app .prog i{display:block;height:4px;border-radius:2px;background:#34436A;margin-bottom:3px}
+.app .prog .on{color:#F2C14E}
+.app .prog .on i{background:#F2C14E}
+.app .prog .cur{font-weight:700}
+.app .bd{padding:14px;display:flex;flex-direction:column;gap:12px}
+.app .card{background:#fff;border-radius:16px;padding:13px 14px;box-shadow:0 1px 2px rgba(15,24,48,.07)}
+.app .card h4{margin:0;font-size:15px}
+.app .muted{color:#5A6684;font-size:12.5px}
+.app .lbl{font-size:12px;color:#4A5672;display:block;margin-bottom:4px}
+.app .in{width:100%;min-height:42px;padding:9px 10px;border-radius:10px;border:1px solid #C9D1E2;background:#fff;font:inherit;color:#1B2333}
+.app textarea.in{min-height:auto;line-height:1.5;resize:none}
+.app .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 16px;border-radius:14px;border:0;font:inherit;font-weight:700;font-size:15px;cursor:pointer;width:100%;text-decoration:none}
+.app .btn.pri{background:#C63C23;color:#fff}
+.app .btn.dark{background:#16213E;color:#fff}
+.app .btn.sec{background:#fff;color:#1B2333;border:1px solid #C9D1E2;font-weight:600}
+.app .btn.sm{min-height:38px;font-size:13px;border-radius:10px;width:auto}
+.app .btn.lotus{background:#8E3A5A;color:#fff}
+.app .cta{position:sticky;bottom:0;margin-top:auto;padding:10px 14px 16px;background:#fff;border-top:1px solid #E3E8F1;z-index:3}
+.app .chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.app .ok{background:#E3EEF7;color:#17496B}
+.app .warn{background:#FBEFD9;color:#7A4E0E}
+.app .bad{background:#FBE3DE;color:#9A2E1E}
+.app .kid{background:#EDE4F5;color:#5B2E7A}
+.app .veg{background:#E2F2E8;color:#1E5E3A}
+.app .info{background:#EEF2F8;color:#2E5A88}
+.app .lead{background:#16213E;color:#fff}
+.app .sen{background:#FBEDF2;border-radius:14px;padding:11px 12px;color:#5A2238;font-size:13.5px;display:flex;gap:8px}
+.app .sen svg{flex:0 0 18px;margin-top:2px;color:#B24A6E}
+.app .q{background:#FDF6E8;border:1px solid #F2D9A8;border-radius:16px;padding:13px 14px}
+.app .pill{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid #C9D1E2;background:#fff;color:#33405E;font:inherit;font-size:13px}
+.app .pill.on{background:#16213E;color:#fff;border-color:#16213E;font-weight:600}
+.app .row{display:flex;gap:10px;align-items:center}
+.app .grow{flex:1 1 auto;min-width:0}
+.app .list{list-style:none;margin:0;padding:0}
+.app .list > li{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #EEF1F6}
+.app .list > li:first-child{border-top:0}
+.app .ico{flex:0 0 36px;height:36px;border-radius:10px;display:grid;place-items:center}
+.app .av{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11.5px;font-weight:700}
+.app .fam{background:#F4F6FA;border-radius:12px;padding:9px 11px;margin-top:8px}
+.app .fam > b{font-size:11px;letter-spacing:.05em;color:#4A5672}
+.app .mx{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.app .mx th{font-weight:600;color:#4A5672;font-size:10px;line-height:1.2;padding:5px 1px}
+.app .mx th[scope=row]{text-align:left;color:#1B2333;font-size:12px;padding:7px 2px}
+.app .mx td{text-align:center;padding:4px 0}
+.app .mx tr + tr{border-top:1px solid #EEF1F6}
+.app .st{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px}
+.app .tabbar{position:sticky;bottom:0;margin-top:auto;flex:0 0 72px;height:72px;background:#fff;border-top:1px solid #E3E8F1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;z-index:3}
+.app .tabbar > span{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10.5px;color:#4A5672}
+.app .tabbar .on{color:#16213E;font-weight:700}
+.app .fab{justify-self:center;width:56px;height:56px;margin-top:-24px;border-radius:50%;background:#C63C23;color:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(15,24,48,.28);border:0}
+.app .ring{position:relative;flex:0 0 62px;height:62px}
+.app .ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:15px}
+.app .bubble{max-width:82%;padding:9px 12px;border-radius:16px;font-size:13.5px;line-height:1.45}
+.app .bubble.me{align-self:flex-end;background:#2F6FDE;color:#fff;border-bottom-right-radius:4px}
+.app .bubble.them{align-self:flex-start;background:#fff;color:#1B2333;border-bottom-left-radius:4px;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.app .linkcard{border-radius:12px;background:#EEF2F8;padding:9px 10px;margin-top:6px;color:#16213E}
+.app .spin{width:18px;height:18px;border-radius:50%;border:3px solid #E3E8F1;border-top-color:#B24A6E;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.app.cam{background:#0D1324;min-height:100%;position:relative}
+
+/* Điểm chạm gợi ý */
+.hot{position:relative;animation:hot 1.8s ease-out infinite;cursor:pointer}
+@keyframes hot{0%{box-shadow:0 0 0 0 rgba(242,193,78,.85)}70%{box-shadow:0 0 0 12px rgba(242,193,78,0)}100%{box-shadow:0 0 0 0 rgba(242,193,78,0)}}
+@media (prefers-reduced-motion: reduce){.hot{animation:none;outline:3px solid #F2C14E;outline-offset:2px}.app .spin{animation-duration:3s}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="color:var(--lotus)"><path d="M12 20c-2.4-1.7-3.6-4.2-3.6-7.1S9.8 7.4 12 5c2.2 2.4 3.6 5 3.6 7.9s-1.2 5.4-3.6 7.1zM12 20c-4.2 0-7.3-2.4-8.3-6.1 2.6-.1 4.8.8 6.3 2.4M12 20c4.2 0 7.3-2.4 8.3-6.1-2.6-.1-4.8.8-6.3 2.4"/></svg>
+    <h1>Hành Trang<small>Demo và hướng dẫn sử dụng</small></h1>
+  </div>
+  <span class="sample">Dữ liệu minh hoạ · đoàn mẫu "Mùa đông England-Scotland-Iceland 2026"</span>
+  <nav class="chapters" id="chapters" aria-label="Các phần"></nav>
+</header>
+
+<main class="stage">
+  <aside class="steps" id="steps" aria-label="Tất cả các bước"></aside>
+  <div class="device-wrap">
+    <div class="device" role="region" aria-label="Màn hình điện thoại mô phỏng">
+      <div class="screen"><div class="screen-scroll" id="screen"></div></div>
+    </div>
+    <div class="device-cap" id="devcap"></div>
+  </div>
+  <section class="narr" aria-live="polite">
+    <div class="chap" id="n-chap"></div>
+    <h2 id="n-title"></h2>
+    <div class="who" id="n-who"></div>
+    <p class="say" id="n-say"></p>
+    <div class="block" id="b-do"><h3>Anh/chị làm</h3><ul id="n-do"></ul></div>
+    <div class="block sen" id="b-sen"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20c-2.4-1.7-3.6-4.2-3.6-7.1S9.8 7.4 12 5c2.2 2.4 3.6 5 3.6 7.9s-1.2 5.4-3.6 7.1zM12 20c-4.2 0-7.3-2.4-8.3-6.1 2.6-.1 4.8.8 6.3 2.4M12 20c4.2 0 7.3-2.4 8.3-6.1-2.6-.1-4.8.8-6.3 2.4"/></svg>Sen làm</h3><ul id="n-sen"></ul></div>
+    <div class="block note" id="b-note"><h3>Lưu ý</h3><div id="n-note"></div></div>
+    <div class="nav">
+      <button type="button" id="prev">Quay lại</button>
+      <span class="count" id="count"></span>
+      <button type="button" class="primary" id="next">Tiếp theo</button>
+    </div>
+    <p class="hint-line">Bấm vào điểm sáng trên màn hình điện thoại, nút Tiếp theo, hoặc phím <kbd>←</kbd> <kbd>→</kbd> để đi tiếp.</p>
+  </section>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+// ---------- Biểu tượng ----------
+const LOTUS='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20c-2.4-1.7-3.6-4.2-3.6-7.1S9.8 7.4 12 5c2.2 2.4 3.6 5 3.6 7.9s-1.2 5.4-3.6 7.1zM12 20c-4.2 0-7.3-2.4-8.3-6.1 2.6-.1 4.8.8 6.3 2.4M12 20c4.2 0 7.3-2.4 8.3-6.1-2.6-.1-4.8.8-6.3 2.4"/></svg>';
+const I={
+  back:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+  x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  folder:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7h6l2 2h10v10H3z"/></svg>',
+  sheet:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 9v12"/></svg>',
+  lock:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  cam:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  home:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>',
+  cal:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  doc:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+  grp:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 14c3 0 6 1.5 6 4"/></svg>',
+  plus:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  bell:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>',
+  pen:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>',
+  mic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  ok:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>',
+  no:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>',
+  ex:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" aria-hidden="true"><path d="M12 6v8M12 18v.5"/></svg>',
+  clock:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
+  google:'<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.1C12.5 13.4 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.2-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>'
+};
+const ST={
+  ok:'<span class="st ok" aria-label="Đủ">'+I.ok+'</span>',
+  no:'<span class="st bad" aria-label="Thiếu">'+I.no+'</span>',
+  ex:'<span class="st warn" aria-label="Cần xem lại">'+I.ex+'</span>',
+  wt:'<span class="st warn" aria-label="Đang làm">'+I.clock+'</span>'
+};
+const ART='<svg class="art" viewBox="0 0 360 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><rect width="360" height="200" fill="#121B36"/><g fill="#E8EEF9"><circle cx="24" cy="22" r="1.2"/><circle cx="96" cy="14" r="1"/><circle cx="176" cy="30" r="1.2"/><circle cx="238" cy="12" r="1"/><circle cx="338" cy="26" r="1.2"/><circle cx="140" cy="62" r="1"/></g><path d="M-10 92 C60 40 120 96 190 54 S300 30 370 70 L370 96 C300 62 240 92 190 84 S70 70 -10 118 Z" fill="#3FBF8F" opacity=".32"/><path d="M-10 70 C70 30 130 70 200 40 S310 20 370 46 L370 60 C310 40 250 66 200 60 S80 52 -10 90 Z" fill="#8BE3C1" opacity=".22"/><path d="M0 200 L60 150 L96 168 L150 122 Q166 112 182 122 L240 166 L272 150 L360 196 L360 200 Z" fill="#22335C"/><path d="M150 122 Q166 112 182 122 L190 129 L181 127 L173 134 L166 126 L159 135 L152 127 L144 131 Z" fill="#DCE2EE"/><g fill="#0B1226"><rect x="302" y="112" width="16" height="84"/><rect x="298" y="104" width="24" height="12"/><path d="M298 104 L310 80 L322 104 Z"/><rect x="309" y="70" width="2" height="12"/></g><circle cx="310" cy="125" r="5" fill="#F2C14E"/><path d="M0 188 Q90 178 180 186 T360 182 L360 200 L0 200 Z" fill="#E6EBF4"/></svg>';
+
+function hd(o){
+  const p=o.step?'<div class="prog">'+['Mô tả đoàn','Sen phân tích','Đối chiếu','Mời'].map((t,i)=>'<span class="'+(i<o.step?'on':'')+(i===o.step-1?' cur':'')+'"><i></i>'+t+'</span>').join('')+'</div>':'';
+  return '<div class="hd">'+(o.art?ART:'')+'<div class="bar"><span class="ib" aria-hidden="true">'+(o.close?I.x:I.back)+'</span><span class="meta">'+(o.meta||'')+'</span><span style="width:40px"></span></div>'+p+(o.ey?'<div class="ey" style="margin-top:12px">'+o.ey+'</div>':'')+'<div class="t1">'+o.t+'</div>'+(o.sub?'<div class="sub">'+o.sub+'</div>':'')+'</div>';
+}
+function tabbar(active){
+  const it=[['home','Hôm nay'],['cal','Lịch trình'],null,['doc','Hồ sơ'],['grp','Đoàn']];
+  return '<nav class="tabbar" aria-label="Thanh điều hướng">'+it.map(x=>x?'<span class="'+(x[1]===active?'on':'')+'">'+I[x[0]]+x[1]+'</span>':'<span class="fab" aria-hidden="true">'+I.cam+'</span>').join('')+'</nav>';
+}
+const AV={TA:'#C6452C',HA:'#2E5A88',LI:'#8A4B7A',MI:'#7A5A2E',BO:'#5B2E7A',QU:'#5B6B3A'};
+const AVL={TA:'TA',HA:'H',LI:'L',MI:'M',BO:'B',QU:'Q'};
+function av(k,size){return '<span class="av" style="background:'+AV[k]+(size?';flex-basis:'+size+'px;height:'+size+'px':'')+'">'+AVL[k]+'</span>';}
+function ring(done,total,color){const c=2*Math.PI*26;const d=(done/total)*c;return '<span class="ring"><svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true"><circle cx="31" cy="31" r="26" fill="none" stroke="#E6EAF2" stroke-width="6"/><circle cx="31" cy="31" r="26" fill="none" stroke="'+color+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+d.toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 31 31)"/></svg><b>'+done+'/'+total+'</b></span>';}
+
+// ---------- Nội dung các bước ----------
+const TRIP='Mùa đông England-Scotland-Iceland 2026';
+const STEPS=[
+// ===== Giới thiệu =====
+{ch:0,id:'gioithieu',title:'Hành Trang là gì',who:null,
+ say:'Một app trên điện thoại giúp cả đoàn cùng lo giấy tờ, lịch trình, chi tiêu và kỷ niệm, mọi thứ nằm trong Google Drive của chính mỗi người.',
+ do:['Có hai vai trò: <b>trưởng đoàn</b> lập chuyến đi, mời mọi người và theo dõi cả đoàn; <b>thành viên</b> nhận lời mời, bổ sung giấy tờ của mình và theo dõi lịch trình.','Đăng nhập bằng gmail, không cần tạo tài khoản mới.'],
+ sen:['Sen là trợ lý trong app, xưng "em". Sen đọc ảnh chụp và file, sắp xếp, đặt tên, kiểm tra giấy tờ, nhắc việc và soạn sẵn tin nhắn.','Sen chỉ gợi ý. Mọi việc gửi đi hay lưu lại đều do anh/chị bấm xác nhận.'],
+ note:'<p>Đoàn mẫu trong demo: <b>Mùa đông England-Scotland-Iceland 2026</b>, 12–23.12.2026, 6 người, trưởng đoàn Tuấn Anh. Giấy tờ cá nhân nằm trong Drive của từng người; đoàn chỉ thấy trạng thái Đủ/Thiếu.</p>',
+ screen:()=>`<div class="app" style="background:#121B36;color:#F3F5FA;justify-content:flex-end;padding-bottom:28px;position:relative">
+  <svg class="art" viewBox="0 0 360 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%"><rect width="360" height="420" fill="#121B36"/><g fill="#E8EEF9"><circle cx="40" cy="40" r="1.3"/><circle cx="120" cy="24" r="1"/><circle cx="210" cy="60" r="1.3"/><circle cx="300" cy="30" r="1"/><circle cx="80" cy="120" r="1"/><circle cx="330" cy="110" r="1.2"/></g><path d="M-10 180 C60 90 140 190 210 110 S320 60 370 120 L370 160 C310 110 250 170 200 160 S70 140 -10 220 Z" fill="#3FBF8F" opacity=".34"/><path d="M-10 140 C80 70 150 140 220 90 S320 50 370 80 L370 100 C320 76 260 120 210 112 S90 104 -10 170 Z" fill="#8BE3C1" opacity=".22"/><path d="M0 420 L70 330 L120 360 L190 280 Q210 266 230 280 L300 350 L360 320 L360 420 Z" fill="#22335C"/><path d="M190 280 Q210 266 230 280 L240 290 L229 287 L219 297 L210 286 L201 298 L192 287 L182 292 Z" fill="#DCE2EE"/><g fill="#0B1226"><rect x="292" y="300" width="20" height="120"/><rect x="287" y="290" width="30" height="14"/><path d="M287 290 L302 258 L317 290 Z"/></g><circle cx="302" cy="318" r="6" fill="#F2C14E"/><path d="M0 400 Q90 388 180 398 T360 392 L360 420 L0 420 Z" fill="#E6EBF4"/></svg>
+  <div style="position:relative;padding:0 22px;display:flex;flex-direction:column;gap:10px">
+   <div style="color:#EE93B2">${LOTUS.replace('width="18" height="18"','width="40" height="40"')}</div>
+   <div class="ey">HÀNH TRANG</div>
+   <div class="t1" style="font-size:30px">Cả đoàn cùng một hành trang</div>
+   <div class="sub" style="font-size:14px">Giấy tờ, lịch trình, chi tiêu và kỷ niệm của chuyến đi, lưu ngay trong Google Drive của anh/chị.</div>
+   <button class="btn pri hot" data-go="next" type="button" style="margin-top:14px">Bắt đầu xem demo</button>
+  </div></div>`},
+
+// ===== Trưởng đoàn chuẩn bị =====
+{ch:1,id:'dangnhap',title:'Đăng nhập bằng Google',who:'TA',
+ say:'Trưởng đoàn mở link app trên điện thoại và đăng nhập bằng gmail của mình.',
+ do:['Mở link app, bấm <b>Đăng nhập với Google</b>.','Chọn gmail, bấm <b>Cho phép</b> khi Google hỏi quyền truy cập Drive.'],
+ sen:['App chỉ xin quyền với những file do chính app tạo, không đọc phần còn lại trong Drive.'],
+ note:'<p>Lần đầu có thể thấy cảnh báo "Google chưa xác minh ứng dụng này". Bấm <b>Nâng cao → Tiếp tục</b>. Đây là bình thường với app dùng nội bộ.</p>',
+ screen:()=>`<div class="app">
+  <div class="hd" style="min-height:330px;display:flex;flex-direction:column;justify-content:flex-end">${ART}<div style="background:rgba(15,24,48,.72);border-radius:16px;padding:14px"><div class="ey">HÀNH TRANG</div><div class="t1">Cả đoàn cùng một hành trang</div><div class="sub">Lưu ngay trong Google Drive của anh/chị.</div></div></div>
+  <div class="bd" style="padding:18px 16px">
+   <button class="btn sec hot" data-go="next" type="button" style="border-color:#747775;font-weight:600">${I.google}Đăng nhập với Google</button>
+   <div class="row muted" style="align-items:flex-start">${I.lock}<span>Sen chỉ truy cập file và thư mục do chính app tạo trong Drive của anh/chị.</span></div>
+   <div class="row muted" style="align-items:flex-start">${I.lock}<span>Giấy tờ cá nhân nằm trong Drive của anh/chị. Đoàn chỉ thấy trạng thái Đủ/Thiếu.</span></div>
+  </div></div>`},
+
+{ch:1,id:'thumucgoc',title:'Đặt tên thư mục chứa mọi chuyến đi',who:'TA',
+ say:'Chỉ làm một lần cho tài khoản này. Thư mục là nơi app cất mọi chuyến đi của anh/chị.',
+ do:['Giữ tên gợi ý hoặc đặt tên khác.','Bấm <b>Tạo thư mục và bắt đầu</b>.'],
+ sen:['Tạo thư mục trong Drive của anh/chị, kèm một Sheet nhật ký ghi lại tài liệu, chi tiêu, checklist.','Gắn nhãn ẩn vào thư mục, nên đổi tên trên Drive hay đăng nhập máy khác, Sen vẫn nhận ra.'],
+ note:'',
+ screen:()=>`<div class="app">${hd({art:1,ey:'LẦN ĐẦU SỬ DỤNG',t:'Chào anh Tuấn Anh',sub:'Anh/chị đặt tên cho thư mục Drive chứa tất cả các chuyến đi nhé.'})}
+  <div class="bd"><div class="card" style="display:flex;flex-direction:column;gap:10px">
+   <div><label class="lbl" for="d-root">Tên thư mục trên Google Drive</label><input id="d-root" class="in" value="Hành Trang – Du lịch"></div>
+   <div style="background:#EEF2F8;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;flex-direction:column;gap:6px">
+    <span class="muted">Sen sẽ tạo trong Drive của <b>tuananh@gmail.com</b>:</span>
+    <span class="row" style="font-weight:600;color:#7A4E0E">${I.folder}<span style="color:#1B2333">Hành Trang – Du lịch</span></span>
+    <span class="row" style="padding-left:22px;color:#1E7A45">${I.sheet}<span style="color:#1B2333">_TravelLog (nhật ký)</span></span>
+   </div>
+   <button class="btn pri hot" data-go="next" type="button">Tạo thư mục và bắt đầu</button>
+  </div></div></div>`},
+
+{ch:1,id:'taochuyen',title:'Tạo chuyến đi mới',who:'TA',
+ say:'Trang chủ còn trống. Trưởng đoàn bắt đầu tạo chuyến đi nhóm đầu tiên.',
+ do:['Bấm <b>Tạo chuyến đi mới</b>.'],
+ sen:['Chào theo giờ trong ngày, hiện link tới thư mục và Sheet nhật ký vừa tạo.'],
+ note:'',
+ screen:()=>`<div class="app">${hd({art:1,ey:'CHÀO BUỔI SÁNG',t:'Tuấn Anh'})}
+  <div class="bd">
+   <div class="card" style="display:flex;flex-direction:column;gap:10px"><h4>Chuyến đi của anh/chị</h4><div><div>Chưa có chuyến đi nào.</div><div class="muted">Tạo chuyến đi nhóm, Sen sẽ giúp sắp xếp giấy tờ và mời mọi người.</div></div>
+    <button class="btn pri hot" data-go="next" type="button">${I.plus}Tạo chuyến đi mới</button></div>
+   <div class="card"><h4>Google Drive của anh/chị</h4><ul class="list" style="margin-top:6px">
+    <li><span class="ico warn">${I.folder}</span><span class="grow"><b>Hành Trang – Du lịch</b><div class="muted">Thư mục chứa mọi chuyến đi</div></span></li>
+    <li><span class="ico veg">${I.sheet}</span><span class="grow"><b>_TravelLog</b><div class="muted">Nhật ký tài liệu, chi tiêu, checklist</div></span></li></ul></div>
+  </div>${tabbar('Hôm nay')}</div>`},
+
+{ch:1,id:'mota',title:'Kể cho Sen nghe về đoàn',who:'TA',
+ say:'Đây là bước quan trọng nhất. Trưởng đoàn viết tự nhiên như kể cho bạn bè: đi đâu, khi nào, gồm những ai, quan hệ thế nào.',
+ do:['Nhập tên chuyến đi và số người.','Viết vào ô <b>Mô tả đoàn</b>. Nên có: điểm đến và ngày, tên từng người, quan hệ và gia đình, trẻ em và tuổi, ai bay riêng, ăn uống, cách chia tiền.'],
+ sen:['Đọc mô tả để hiểu đoàn: ai là ai, ai đi cùng gia đình nào, ai là trẻ em, ai có lịch riêng.','Từ điểm đến, biết đoàn cần <b>hai loại visa</b>: visa Anh (cho England và Scotland) và visa Schengen (cho Iceland).','Dùng số người anh/chị nhập để tự kiểm tra xem mô tả có sót ai không.'],
+ note:'<p>Mô tả gốc chỉ trưởng đoàn thấy. Thành viên chỉ thấy phần liên quan đến họ.</p>',
+ screen:()=>`<div class="app">${hd({close:1,meta:'Khởi tạo đoàn · Bước 1/4',step:1,t:'Tạo chuyến đi nhóm',sub:'Anh/chị kể cho Sen nghe về đoàn, phần sắp xếp để em lo'})}
+  <div class="bd">
+   <div class="card" style="display:grid;grid-template-columns:1fr 70px;gap:10px"><div><label class="lbl" for="d-name">Tên chuyến đi</label><textarea id="d-name" class="in" rows="2" style="font-weight:600">${TRIP}</textarea></div><div><label class="lbl" for="d-n">Số người</label><input id="d-n" class="in" value="6" style="text-align:center;font-weight:700"></div></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #16213E">
+    <label class="lbl row" for="d-brief" style="font-weight:700;color:#1B2333;font-size:14px"><span style="color:#B24A6E">${LOTUS}</span>Mô tả đoàn</label>
+    <textarea id="d-brief" class="in" rows="9">Đoàn 6 người đi London – Edinburgh, Cao nguyên Scotland – Reykjavik từ 12 đến 23.12.2026. Gồm mình (Tuấn Anh, trưởng đoàn) và vợ là Hà; vợ chồng Linh – Minh cùng con gái Bông 8 tuổi; em trai mình là Quân, ăn chay. Quân đang công tác ở Paris nên bay thẳng sang London, gặp đoàn ngày 13.12. Chi tiêu chung chia theo gia đình.</textarea>
+    <div class="row muted" style="margin-top:8px;align-items:flex-start;color:#7A4E0E">${I.lock}<span>Mô tả này chỉ anh/chị thấy.</span></div>
+   </div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Tiếp tục: chọn thư mục tài liệu</button></div></div>`},
+
+{ch:1,id:'thumuc',title:'Chỉ cho Sen thư mục tài liệu của đoàn',who:'TA',
+ say:'Nếu đã có sẵn vé, xác nhận khách sạn, ảnh hộ chiếu trên Drive, trưởng đoàn chỉ cần chọn thư mục đó.',
+ do:['Trước đó, bỏ các file đại lý gửi (chương trình tour, danh mục hồ sơ visa, hợp đồng, mốc thanh toán) vào thư mục con <b>00_Dai_ly</b>.','Chọn <b>Dùng thư mục có sẵn</b> rồi chọn thư mục trên Drive. Nếu chưa có gì, chọn <b>Tạo thư mục mới</b>.','Bấm <b>Nhờ Sen phân tích</b>.'],
+ sen:['Đọc từng file trong thư mục, rồi đối chiếu với mô tả đoàn để biết ai đã có gì.'],
+ note:'<p>Sen chỉ di chuyển và đổi tên file cho gọn, không xoá file nào.</p>',
+ screen:()=>`<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 1/4',step:1,t:'Tài liệu của đoàn để ở đâu?'})}
+  <div class="bd">
+   <div class="card row" style="align-items:flex-start;border:1px solid #D5DBE7;box-shadow:none"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #8A96B0;flex:0 0 20px;margin-top:2px"></span><span><b>Tạo thư mục mới</b><div class="muted">Chưa có tài liệu nào. Sen lập danh sách cần chuẩn bị từ mô tả đoàn.</div></span></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #16213E"><div class="row" style="align-items:flex-start"><span style="width:20px;height:20px;border-radius:50%;border:6px solid #16213E;flex:0 0 20px;margin-top:2px"></span><span><b>Dùng thư mục có sẵn tài liệu của đoàn</b><div class="muted">Sen đọc từng file và đối chiếu với mô tả đoàn</div></span></div>
+    <div class="row" style="margin-top:10px;background:#EEF2F8;border-radius:12px;padding:9px 10px"><span class="ico warn">${I.folder}</span><span class="grow"><b>UK Iceland 12-2026</b><div class="muted">16 file · có thư mục 00_Dai_ly (chương trình tour, danh mục visa, hợp đồng)</div></span><span class="btn sec sm" style="width:auto">Đổi</span></div></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">${LOTUS}Nhờ Sen phân tích đoàn và 16 tài liệu</button></div></div>`},
+
+{ch:1,id:'dangphantich',title:'Sen đang phân tích',who:'TA',
+ say:'Trong khoảng một đến hai phút, Sen đọc mô tả đoàn và từng tài liệu. Trưởng đoàn có thể đóng app, Sen vẫn làm tiếp.',
+ do:['Chờ, hoặc làm việc khác rồi quay lại.'],
+ sen:['Đọc mô tả đoàn.','Đọc lần lượt 16 file: loại giấy tờ, tên người trên giấy tờ, ngày tháng, số tiền.','Tách giấy tờ tuỳ thân (hộ chiếu) vào thư mục riêng của trưởng đoàn.'],
+ note:'<p>Sen xử lý từng file một nên không bị giới hạn thời gian, và hiện tiến độ rõ ràng.</p>',
+ screen:()=>`<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 2/4',step:2,t:'Sen đang đọc tài liệu',sub:'Anh/chị có thể đóng app, em vẫn làm tiếp'})}
+  <div class="bd"><div class="card"><ul class="list">
+   <li><span class="st ok">${I.ok}</span><span class="grow">Đọc mô tả đoàn<div class="muted">6 người · 3 gia đình · 3 nước</div></span></li>
+   <li><span class="st ok">${I.ok}</span><span class="grow">20261212_VeMayBay_HAN-LHR.pdf</span></li>
+   <li><span class="st ok">${I.ok}</span><span class="grow">Chương trình tour của đại lý<div class="muted">Dựng lịch trình 12 ngày</div></span></li>
+   <li><span class="st ok">${I.ok}</span><span class="grow">Hộ chiếu (4 ảnh)<div class="muted">Đã tách vào thư mục riêng</div></span></li>
+   <li><span class="spin" aria-hidden="true"></span><span class="grow"><b>IMG_5530.jpg</b><div class="muted">Đang đọc…</div></span></li>
+   <li style="color:#8A96B0"><span style="width:18px"></span><span class="grow">Còn 6 file</span></li></ul>
+   <div style="margin-top:10px;height:8px;border-radius:4px;background:#E6EAF2;overflow:hidden"><div style="width:62%;height:100%;background:#B24A6E"></div></div>
+   <div class="muted" style="margin-top:6px">10/16 tài liệu</div></div></div>
+  <div class="cta"><button class="btn dark hot" data-go="next" type="button">Xem kết quả</button></div></div>`},
+
+{ch:1,id:'hieudoan',title:'Sen hiểu đoàn và hỏi lại chỗ chưa rõ',who:'TA',
+ say:'Sen trình bày lại đoàn theo từng gia đình, kèm những ghi chú quan trọng. Chỗ nào mơ hồ, Sen hỏi lại thay vì tự đoán.',
+ do:['Kiểm tra danh sách. Chạm vào chỗ nào sai để sửa.','Trả lời các câu hỏi của Sen bằng nút bấm nhanh.'],
+ sen:['Nhóm người theo gia đình, đánh dấu trưởng đoàn, trẻ em, người bay riêng, người ăn chay.','Kiểm tra 6/6 khớp số người.','Hỏi: ai bổ sung giấy tờ cho bé Bông (người giám hộ)? Quân có về Việt Nam cùng đoàn không?'],
+ note:'<p>Trẻ em không cần gmail. Hồ sơ của các em hiện trên màn hình của bố hoặc mẹ được chọn làm người giám hộ.</p>',
+ screen:()=>`<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 2/4',step:2,t:'Sen đã hiểu đoàn của anh/chị',sub:'London · Edinburgh · Highlands · Reykjavik · 12–23.12'})}
+  <div class="bd">
+   <div class="card"><div class="row"><h4 class="grow">Thành viên</h4><span class="chip ok">${I.ok}6/6 khớp số người</span></div>
+    <div class="fam"><b>GIA ĐÌNH TUẤN ANH · 2</b><div class="row" style="margin-top:4px"><span class="grow"><b>Tuấn Anh</b> <span class="muted">· anh/chị</span></span><span class="chip lead">Trưởng đoàn</span></div><div><b>Hà</b> <span class="muted">· vợ</span></div></div>
+    <div class="fam"><b>GIA ĐÌNH LINH · 3</b><div><b>Linh</b> <span class="muted">· bạn</span></div><div><b>Minh</b> <span class="muted">· chồng Linh</span></div><div class="row"><span class="grow"><b>Bông</b> <span class="muted">· con gái, 8 tuổi</span></span><span class="chip kid">Trẻ em</span></div></div>
+    <div class="fam"><b>QUÂN · 1</b><div class="row" style="margin-top:4px"><span class="grow"><b>Quân</b> <span class="muted">· em trai</span></span><span class="chip warn">Bay từ Paris</span><span class="chip veg">Ăn chay</span></div></div></div>
+   <div class="q"><b style="color:#5E3B09">Em cần anh/chị làm rõ 2 điểm</b>
+    <div style="margin-top:8px;font-size:13.5px">Ai bổ sung giấy tờ cho <b>Bông</b>?</div>
+    <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:6px"><span class="pill on hot" data-go="next" role="button" tabindex="0">Linh</span><span class="pill">Minh</span></div>
+    <div style="margin-top:10px;font-size:13.5px">Quân có <b>về Việt Nam cùng đoàn</b> ngày 23.12 không?</div>
+    <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:6px"><span class="pill on">Về cùng đoàn</span><span class="pill">Về riêng</span><span class="pill">Chưa biết</span></div></div>
+  </div></div>`},
+
+{ch:1,id:'tailieu',title:'Tài liệu đã được sắp xếp',who:'TA',
+ say:'16 file lộn xộn được sắp vào đúng thư mục, đặt tên chuẩn, và ghép với từng người trong đoàn.',
+ do:['Xem lại mục <b>Cần anh/chị xem lại</b>.','Kiểm tra phần ghép tên, nhất là tên ở nhà.'],
+ sen:['Đặt tên file theo mẫu: ngày_loại_mô tả, ví dụ 20261216_VeTau_London-Edinburgh.','Ghép tên viết hoa không dấu trên giấy tờ với tên trong mô tả đoàn. Nhận ra "Bông" là tên ở nhà của TRAN BAO NGOC và hỏi lại cho chắc.','Chỉ ra người chưa có tên trên giấy tờ nào: Quân, vì Quân bay riêng từ Paris.'],
+ note:'',
+ screen:()=>`<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 2/4',step:2,t:'16 tài liệu đã sắp xếp'})}
+  <div class="bd">
+   <div class="card"><ul class="list">
+    <li><span class="ico info">${I.folder}</span><span class="grow"><b>Vé máy bay · 3</b><div class="muted">HAN–London, Edinburgh–Reykjavik, Reykjavik–HAN · 5 tên</div></span></li>
+    <li><span class="ico info">${I.folder}</span><span class="grow"><b>Khách sạn · 4, Tàu và tour · 4</b><div class="muted">Chung cả đoàn</div></span></li>
+    <li><span class="ico info">${I.folder}</span><span class="grow"><b>Bảo hiểm · 1</b><div class="muted">Gia đình Tuấn Anh, 2 người</div></span></li>
+    <li><span class="ico warn">${I.lock}</span><span class="grow"><b>Hộ chiếu · 4</b><div class="muted">Thư mục riêng, chỉ anh/chị xem</div></span></li></ul></div>
+   <div class="card"><h4>Ghép tên trên giấy tờ</h4><ul class="list" style="font-size:13px;margin-top:4px">
+    <li><span class="grow muted">NGUYEN TUAN ANH</span><b>Tuấn Anh</b></li>
+    <li><span class="grow muted">DO THU HA</span><b>Hà</b></li>
+    <li><span class="grow muted">NGUYEN KHANH LINH</span><b>Linh</b></li>
+    <li><span class="grow muted">TRAN QUANG MINH</span><b>Minh</b></li>
+    <li><span class="grow muted">TRAN BAO NGOC</span><span class="row" style="gap:6px"><b>Bông?</b><span class="chip warn">Xác nhận</span></span></li>
+    <li><span class="grow" style="color:#9A2E1E">Chưa có trên giấy tờ nào</span><b style="color:#9A2E1E">Quân</b></li></ul></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Tiếp tục: xem còn thiếu gì</button></div></div>`},
+
+{ch:1,id:'daily',title:'Sen đọc tài liệu của đại lý',who:'TA',
+ say:'Đi land tour thì đại lý đã gửi sẵn chương trình tour, danh mục hồ sơ visa và các mốc thanh toán. Trưởng đoàn chỉ cần bỏ các file đó vào thư mục 00_Dai_ly, Sen tự đọc.',
+ do:['Kiểm tra lịch trình Sen dựng từ chương trình tour.','Kiểm tra danh mục hồ sơ và các mốc hạn của đại lý.'],
+ sen:['Đọc chương trình tour, dựng <b>lịch trình 12 ngày</b>: giờ tập trung, khách sạn, bữa đã bao, buổi tự do.','Đọc danh mục hồ sơ visa của đại lý, dùng làm <b>danh mục mỗi người cần có</b> thay cho danh mục tự đề xuất.','Lấy <b>hạn của đại lý</b> làm hạn chót cho các yêu cầu bổ sung, và lấy số điện thoại hướng dẫn viên để đưa vào Thẻ khẩn cấp.'],
+ note:'<p>Giấy tờ tài chính trong hồ sơ visa (sao kê ngân hàng, xác nhận công việc) chỉ được báo Đủ/Thiếu, không bao giờ vào thư mục chung.</p>',
+ screen:()=>`<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 2/4',step:2,t:'Từ tài liệu của đại lý',sub:'Thư mục 00_Dai_ly · 4 file'})}
+  <div class="bd">
+   <div class="card"><div class="row"><h4 class="grow">Lịch trình 12 ngày</h4><span class="chip info">Từ chương trình tour</span></div><ul class="list" style="font-size:13px;margin-top:4px">
+    <li><b style="flex:0 0 58px">N1 12.12</b><span class="grow">Đến London · nhận phòng</span></li>
+    <li><b style="flex:0 0 58px">N5 16.12</b><span class="grow">Tàu London → Edinburgh</span></li>
+    <li><b style="flex:0 0 58px">N7 18.12</b><span class="grow">Cao nguyên Scotland · hồ Loch Ness</span></li>
+    <li><b style="flex:0 0 58px">N8 19.12</b><span class="grow">Bay Edinburgh → Reykjavik</span></li>
+    <li><b style="flex:0 0 58px">N12 23.12</b><span class="grow">Về Hà Nội</span></li></ul><div class="muted" style="margin-top:4px">Và 7 ngày khác · 22 bữa đã bao · 3 buổi tự do</div></div>
+   <div class="card"><div class="row"><h4 class="grow">Hồ sơ visa đại lý yêu cầu</h4><span class="chip info">Danh mục</span></div><ul class="list" style="font-size:13px;margin-top:4px">
+    <li><span class="grow">Hộ chiếu, ảnh 3,5×4,5 nền trắng</span></li>
+    <li><span class="grow">Sao kê ngân hàng 6 tháng, xác nhận công việc</span><span class="chip warn">${I.lock}Riêng</span></li>
+    <li><span class="grow">Bảo hiểm du lịch (cho visa Schengen)</span></li>
+    <li><span class="grow">Giấy khai sinh (trẻ em)</span></li></ul></div>
+   <div class="card"><h4>Mốc hạn của đại lý</h4><ul class="list" style="font-size:13px;margin-top:4px">
+    <li><span class="grow">Nộp hồ sơ visa cho đại lý</span><b>30.10</b></li>
+    <li><span class="grow">Đặt cọc 30% tiền tour</span><b>25.10</b></li>
+    <li><span class="grow">Thanh toán phần còn lại</span><b>20.11</b></li></ul></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Đúng rồi, tiếp tục</button></div></div>`},
+
+{ch:1,id:'doichieu',title:'Bảng đối chiếu: ai đã có gì, ai còn thiếu',who:'TA',
+ say:'Chỉ một bảng, trưởng đoàn biết ngay tình trạng cả đoàn. Bảng này cũng là bảng sẵn sàng trên Dashboard đoàn.',
+ do:['Xem tổng quan và các điểm Sen lưu ý.'],
+ sen:['Kiểm tra theo quy tắc: hộ chiếu còn hạn ít nhất 6 tháng tính từ ngày về; bảo hiểm phủ hết các ngày; tên trên vé khớp hộ chiếu.','Phát hiện hộ chiếu của Hà chỉ còn hạn đến 10.03.2027, không đủ 6 tháng sau ngày về 23.12, và nhắc gia hạn trước khi nộp visa.','Nhắc thứ tự: bảo hiểm cần có trước, vì hồ sơ visa Schengen bắt buộc kèm bảo hiểm du lịch.'],
+ note:'<p>Biểu tượng khác nhau cả về màu lẫn hình (dấu tích, dấu chấm than, dấu nhân) để dễ nhìn dưới trời tối hoặc với người khó phân biệt màu.</p>',
+ screen:()=>{const rows=[['Tuấn Anh',['ok','no','no','ok','ok']],['Hà',['ex','no','no','ok','ok']],['Linh',['ok','no','no','no','ok']],['Minh',['ok','no','no','no','ok']],['Bông (8t)',['no','no','no','no','ok']],['Quân',['no','no','no','no','no']]];
+  return `<div class="app"><div class="hd"><div class="bar"><span class="ib">${I.back}</span><span class="meta">Khởi tạo đoàn · Bước 3/4</span><span style="width:40px"></span></div><div class="prog">${['Mô tả đoàn','Sen phân tích','Đối chiếu','Mời'].map((t,i)=>'<span class="'+(i<3?'on':'')+(i===2?' cur':'')+'"><i></i>'+t+'</span>').join('')}</div>
+  <div class="row" style="margin-top:12px">${ring(10,30,'#F2C14E').replace('#E6EAF2','#34436A').replace('<b>','<b style="color:#fff">')}<span><div class="t1" style="font-size:19px;margin:0">Đoàn đã có 10/30 mục</div><div class="sub">19 thiếu · 1 cần xem lại</div></span></div></div>
+  <div class="bd"><div class="card"><table class="mx"><thead><tr><th style="text-align:left">Thành viên</th><th>Hộ chiếu</th><th>Visa Anh</th><th>Schengen</th><th>Bảo hiểm</th><th>Vé</th></tr></thead><tbody>${rows.map(r=>'<tr><th scope="row">'+r[0]+'</th>'+r[1].map(s=>'<td>'+ST[s]+'</td>').join('')+'</tr>').join('')}</tbody></table>
+   <div class="sen" style="margin-top:10px">${LOTUS}<span>Hộ chiếu của Hà hết hạn 10.03.2027, cần còn hạn đến sau 23.06.2027. Nên gia hạn <b>trước khi nộp visa</b>.</span></div>
+   <div class="sen" style="margin-top:8px">${LOTUS}<span>Visa Schengen (Iceland) cần nộp kèm bảo hiểm du lịch, nên em đặt hạn bảo hiểm <b>trước</b> hạn nộp visa Schengen.</span></div></div></div>
+  <div class="cta"><button class="btn pri hot" data-go="next" type="button">Xem yêu cầu bổ sung Sen soạn</button></div></div>`}},
+
+{ch:1,id:'yeucau',title:'Sen soạn sẵn yêu cầu bổ sung cho từng người',who:'TA',
+ say:'Từ bảng đối chiếu, Sen soạn danh sách việc cần bổ sung, nhóm theo người nhận, có hạn chót. Trưởng đoàn chỉ cần duyệt.',
+ do:['Xem từng người. Chạm vào hạn chót để sửa, bấm dấu nhân để bỏ, hoặc thêm yêu cầu.','Bấm <b>Lưu yêu cầu và mời thành viên</b>.'],
+ sen:['Gửi yêu cầu của trẻ em tới người giám hộ (Linh nhận cả hồ sơ của Bông).','Gộp hợp lý: một bảo hiểm gia đình cho Linh, Minh và Bông thay vì 3 yêu cầu riêng.','Đề xuất thêm mục ngoài danh sách, có nhãn "Sen gợi ý", ví dụ bản sao giấy khai sinh cho hồ sơ visa trẻ em.','Lấy hạn của đại lý (nộp hồ sơ visa 30.10) và tính ngược theo thứ tự: hộ chiếu, bảo hiểm, giấy khai sinh phải xong trước, hạn 25.10.'],
+ note:'<p>Thành viên chỉ thấy yêu cầu của mình sau khi nhận lời mời và đăng nhập.</p>',
+ screen:()=>{const r=(t,s,d,tag)=>`<li><span class="grow"><b style="font-size:13.5px">${t}</b>${tag?' <span class="chip info">Sen gợi ý</span>':''}<div class="muted">${s}</div></span><span class="btn sec sm" style="min-height:30px;padding:0 8px;font-size:12px">${d}</span></li>`;
+  return `<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 3/4',step:3,t:'19 yêu cầu bổ sung',sub:'Hạn chót do Sen gợi ý, anh/chị chạm để sửa'})}
+  <div class="bd">
+   <div class="card"><div class="row"><span class="grow"><b>Linh</b> <span class="muted">· 7 yêu cầu</span></span><span class="chip kid">Kèm hồ sơ Bông</span></div><ul class="list" style="margin-top:4px">
+    ${r('Bảo hiểm gia đình, 3 người','Phủ 12–23.12, đủ điều kiện visa Schengen','25.10')}${r('Visa Anh','Chụp trang visa hoặc ghi tình trạng','30.10')}${r('Visa Schengen','Nộp cùng đợt, sau khi có bảo hiểm','30.10')}${r('Hộ chiếu của Bông','Chụp trang thông tin','25.10')}${r('Visa Anh của Bông','Nộp cùng hồ sơ bố mẹ','30.10')}${r('Visa Schengen của Bông','Nộp cùng hồ sơ bố mẹ','30.10')}${r('Giấy khai sinh của Bông','Thường cần cho visa trẻ em','25.10',1)}</ul></div>
+   <div class="card"><div><b>Quân</b> <span class="muted">· 5 yêu cầu</span></div><ul class="list" style="margin-top:4px">${r('Vé máy bay riêng','Paris → London, đến trước 13.12','30.10')}${r('Hộ chiếu','Chụp trang thông tin','25.10')}${r('Bảo hiểm du lịch','Phủ 13–23.12','25.10')}</ul><div class="muted" style="margin-top:4px">Và 2 mục nữa: visa Anh, visa Schengen</div></div>
+   <div class="card row"><span class="grow"><b>Hà</b> <span class="muted">· gia hạn hộ chiếu, visa Anh, Schengen</span></span></div>
+   <div class="card row"><span class="grow"><b>Minh</b> <span class="muted">· visa Anh, Schengen</span></span></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Lưu yêu cầu và mời thành viên</button></div></div>`}},
+
+{ch:1,id:'moi',title:'Mời cả đoàn bằng một link chung',who:'TA',
+ say:'Không cần đi xin gmail từng người. Trưởng đoàn gửi một link duy nhất vào nhóm Zalo, mỗi người tự đăng ký, trưởng đoàn chỉ việc duyệt.',
+ do:['Bấm <b>Chia sẻ lên nhóm Zalo</b>: chọn Zalo, chọn nhóm của đoàn, gửi.','Nếu trình duyệt không mở được Zalo, bấm <b>Sao chép</b> rồi dán vào nhóm.'],
+ sen:['Soạn sẵn tin mời ngắn, kèm link, không có thông tin cá nhân nào.','Link mời có hạn 14 ngày. Ai bấm link cũng phải được trưởng đoàn duyệt mới vào được đoàn.','Nhắc mọi người dùng gmail cá nhân, không dùng gmail công ty.'],
+ note:'<p>App không kết nối kỹ thuật với Zalo, chỉ mở bảng chia sẻ của điện thoại. Link có lộ ra ngoài thì người lạ cũng không vào được vì cần duyệt.</p><p>Cách dự phòng: dán danh sách gmail để gửi lời mời riêng từng người.</p>',
+ screen:()=>`<div class="app">${hd({meta:'Khởi tạo đoàn · Bước 4/4',step:4,t:'Mời thành viên',sub:'Một link chung cho cả đoàn, anh/chị duyệt từng người'})}
+  <div class="bd">
+   <div class="card"><h4>Tin mời Sen soạn sẵn</h4><div style="border:1px solid #D5DBE7;border-radius:12px;padding:10px;margin-top:8px;font-size:13.5px;background:#FBFCFE">
+    Cả nhà ơi, mình tạo đoàn <b>${TRIP}</b> trên app Hành Trang. Mỗi người bấm link, đăng nhập bằng <b>gmail cá nhân</b> và chọn tên mình nhé. Anh sẽ duyệt.<div class="linkcard" style="margin-top:8px"><div class="row"><span style="color:#B24A6E">${LOTUS}</span><b class="grow">Tham gia đoàn</b></div><div class="muted" style="margin-top:2px">Link mời chung · hết hạn 29.10</div></div></div>
+    <button class="btn hot" data-go="next" type="button" style="margin-top:10px;background:#0068FF;color:#fff">Chia sẻ lên nhóm Zalo</button>
+    <button class="btn sec" type="button" style="margin-top:8px;min-height:42px">Sao chép tin mời</button></div>
+   <div class="card row"><span class="grow"><b>Đã đăng ký</b><div class="muted">0/5 người lớn · Bông không cần gmail</div></span><span class="chip warn">Chờ</span></div>
+   <div class="card row" style="box-shadow:none;background:transparent;padding:4px 2px"><span class="muted grow">Cách khác: dán danh sách gmail</span><span class="muted">›</span></div>
+  </div></div>`},
+
+{ch:1,id:'dashboard1',title:'Dashboard đoàn của trưởng đoàn',who:'TA',
+ say:'Ngay sau khi gửi lời mời, trưởng đoàn có một trang theo dõi cả đoàn: ai đã nhận lời, ai còn thiếu gì.',
+ do:['Lọc <b>Còn thiếu</b> để xem nhanh.','Bấm chuông cạnh tên để nhắc riêng một người.','Bấm <b>Viết lời nhắn</b> để nhắn cả đoàn hoặc từng người.'],
+ sen:['Báo ngay khi có người đăng ký qua link chung để trưởng đoàn duyệt.','Mỗi sáng tóm tắt tình hình đoàn bằng vài câu.','Cập nhật bảng ngay khi thành viên chụp giấy tờ.'],
+ note:'',
+ screen:()=>{const m=(k,n,d,tot,tags,col)=>`<li><span class="ring" style="flex-basis:44px;height:44px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="#E6EAF2" stroke-width="4"/><circle cx="22" cy="22" r="18" fill="none" stroke="${col}" stroke-width="4" stroke-dasharray="${(d*113/tot).toFixed(0)} 113" transform="rotate(-90 22 22)"/></svg><b style="font-family:var(--font-body);font-size:11px">${AVL[k]}</b></span><span class="grow"><div class="row"><b class="grow">${n}</b><span class="muted">${d}/${tot}</span></div><div class="row" style="flex-wrap:wrap;gap:4px;margin-top:3px">${tags}</div></span><span class="ib" style="background:#fff;color:#1B2333;border:1px solid #C9D1E2;width:38px;height:38px">${I.bell}</span></li>`;
+  return `<div class="app"><div class="hd">${ART}<div class="bar"><span class="ib">${I.back}</span><span class="meta">London · 6°C · mưa phùn</span><span style="width:40px"></span></div><div class="ey" style="margin-top:40px">DASHBOARD ĐOÀN</div><div class="t1">${TRIP}</div><div class="sub">12 – 23.12 · 6 người · còn 58 ngày</div></div>
+  <div class="bd">
+   <div class="card" style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:4px;margin-top:-26px;position:relative"><div><b style="font-family:var(--font-display);font-size:19px">1/5</b><div class="muted" style="font-size:11px">đã vào</div></div><div><b style="font-family:var(--font-display);font-size:19px">2</b><div class="muted" style="font-size:11px">chờ duyệt</div></div><div><b style="font-family:var(--font-display);font-size:19px">10/30</b><div class="muted" style="font-size:11px">giấy tờ</div></div><div><b style="font-family:var(--font-display);font-size:19px;color:#9A2E1E">19</b><div class="muted" style="font-size:11px">yêu cầu</div></div></div>
+   <div class="sen">${LOTUS}<span><b>Sen tóm tắt:</b> Hà đã vào app. Linh và Quân đang chờ anh/chị duyệt, Minh chưa đăng ký. Việc gấp nhất là hộ chiếu của Bông và gia hạn hộ chiếu của Hà, hạn 25.10.</span></div>
+   <div class="card" style="background:#FBEFE9;box-shadow:none"><div style="font-size:11px;font-weight:700;color:#8A3A26">THÔNG BÁO MỚI NHẤT</div><div style="font-weight:600">Hạn nộp hồ sơ visa Anh: thứ Sáu 30.10</div><div class="row" style="margin-top:8px"><span class="grow"></span><span class="btn sm hot" data-go="next" role="button" tabindex="0" style="background:#8A3A26;color:#fff">${I.pen}Viết lời nhắn</span></div></div>
+   <div class="card"><div class="row"><h4 class="grow">Thành viên</h4><span class="pill on" style="min-height:30px">Còn thiếu</span></div><ul class="list" style="margin-top:4px">
+    ${m('QU','Quân',0,5,'<span class="chip bad">Vé riêng</span><span class="chip bad">Hộ chiếu</span><span class="chip bad">Visa</span>','#C2412D')}
+    ${m('BO','Bông',1,5,'<span class="chip bad">Hộ chiếu</span><span class="chip bad">Visa</span>','#C2412D')}
+    ${m('HA','Hà',2,5,'<span class="chip warn">Gia hạn hộ chiếu</span><span class="chip bad">Visa</span>','#B7791F')}
+    ${m('LI','Linh',2,5,'<span class="chip bad">Visa</span><span class="chip bad">Bảo hiểm</span>','#B7791F')}</ul></div>
+  </div>${tabbar('Đoàn')}</div>`}},
+
+{ch:1,id:'loinhan',title:'Lời nhắn: viết một lần, Sen chia chung hay riêng',who:'TA',
+ say:'Trưởng đoàn viết hoặc nói một đoạn như nhắn trong nhóm chat. Sen tách thành thông báo chung lên dashboard và tin nhắn riêng cho từng người.',
+ do:['Gõ hoặc bấm micro để nói.','Bấm <b>Nhờ Sen xem trước</b>, kiểm tra từng phần, đổi luồng nếu cần.','Bấm <b>Gửi</b>.'],
+ sen:['Nội dung chung cho cả đoàn → thông báo trên dashboard, có thể ghim.','Nhắc đích danh một người → nhắn riêng, kèm nút làm luôn (ví dụ chụp hộ chiếu của Bông).','Chuyện tiền nong, sức khoẻ, giấy tờ cá nhân → luôn nhắn riêng; mỗi người chỉ thấy phần của mình.','Đối chiếu với lịch trình: "21h sáng 12.12" không khớp chuyến bay cất cánh 00:30 ngày 12.12, nên hỏi lại có phải "tối 11.12".'],
+ note:'<p>Sen không bao giờ tự gửi. Sen giữ nguyên lời văn của trưởng đoàn, chỉ gợi ý sửa.</p>',
+ screen:()=>`<div class="app">${hd({meta:'England-Scotland-Iceland · 6 người',t:'Lời nhắn của trưởng đoàn',sub:'Anh/chị cứ viết một lần, Sen sẽ chia ra'})}
+  <div class="bd">
+   <div class="card"><textarea class="in" rows="5" aria-label="Lời nhắn">Cả nhà ơi, sáng 12.12 tập trung ở sảnh ga quốc tế Nội Bài lúc 21h nhé, nhớ mang áo phao, găng tay và giày chống trơn cho Iceland. Linh ơi nhớ nộp hộ chiếu của Bông trước 25.10 nha. Linh với Quân chuyển nốt tiền quỹ giúp anh.</textarea></div>
+   <div class="row" style="color:#B24A6E;font-weight:700">${LOTUS}<span style="color:#1B2333">Em tách thành 3 lời nhắn</span></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #C9D7EA"><span class="chip lead">${I.grp.replace('width="20" height="20"','width="13" height="13"')}Chung · Dashboard đoàn</span><p style="margin:8px 0 0">Cả nhà ơi, sáng 12.12 tập trung ở sảnh ga quốc tế Nội Bài lúc 21h nhé, nhớ mang áo phao, găng tay và giày chống trơn cho Iceland.</p>
+    <div class="q" style="margin-top:8px;padding:9px 10px;font-size:12.5px;color:#5E3B09"><b>Em thấy chưa khớp:</b> chuyến bay đi London cất cánh 00:30 ngày 12.12, nên 21h là <b>tối 11.12</b>.<div class="row" style="gap:6px;margin-top:6px"><span class="pill on" style="min-height:30px">Sửa thành tối 11.12</span><span class="pill" style="min-height:30px">Giữ nguyên</span></div></div></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #DCCDEA"><span class="chip" style="background:#5B2E7A;color:#fff">${I.lock}Riêng · Linh</span><p style="margin:8px 0 0">Linh ơi nhớ nộp hộ chiếu của Bông trước 25.10 nha.</p><div class="muted" style="margin-top:4px">Kèm nút "Chụp hộ chiếu của Bông"</div></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #DCCDEA"><span class="chip" style="background:#5B2E7A;color:#fff">${I.lock}Riêng · Linh, Quân</span><p style="margin:8px 0 0">Linh với Quân chuyển nốt tiền quỹ giúp anh.</p><div class="muted" style="margin-top:4px">Chuyện tiền nong em để nhắn riêng: gia đình Linh còn 20 triệu, Quân còn 10 triệu.</div></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Gửi 3 lời nhắn</button></div></div>`},
+
+// ===== Thành viên tham gia =====
+{ch:2,id:'nhanloimoi',title:'Thành viên nhận lời mời',who:'LI',
+ say:'Linh thấy link mời chung trưởng đoàn vừa chia sẻ vào nhóm Zalo của đoàn.',
+ do:['Bấm vào link trong lời mời.'],
+ sen:['Link chung dùng cho cả đoàn, nhưng ai bấm vào cũng phải được trưởng đoàn duyệt mới xem được thông tin của đoàn.'],
+ note:'<p>Nên mở link bằng trình duyệt chỉ đăng nhập một tài khoản Google để tránh nhầm tài khoản.</p>',
+ screen:()=>`<div class="app" style="background:#E9EEF5">
+  <div style="background:#fff;padding:14px 14px 10px;border-bottom:1px solid #E3E8F1" class="row"><span class="ib" style="background:#F1F4F9;color:#1B2333">${I.back}</span><span class="grow"><b>Nhóm "UK – Iceland 12/2026"</b><div class="muted">6 thành viên</div></span></div>
+  <div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:8px">
+   <div class="bubble them"><b style="font-size:12px;color:#C6452C">Tuấn Anh</b><br>Cả nhà ơi, mình tạo đoàn trên app Hành Trang rồi. Mỗi người bấm link, đăng nhập gmail cá nhân và chọn tên mình nhé. Anh sẽ duyệt.</div>
+   <div class="bubble them" style="max-width:88%"><b style="font-size:12px;color:#C6452C">Tuấn Anh</b><div class="linkcard hot" data-go="next" role="button" tabindex="0"><div class="row"><span style="color:#B24A6E">${LOTUS}</span><b class="grow">Hành Trang · ${TRIP}</b></div><div class="muted" style="margin-top:4px">Link mời chung · hết hạn 29.10</div></div></div>
+   <div class="bubble me">Ok anh, em vào ngay</div>
+  </div></div>`},
+
+{ch:2,id:'daylatoi',title:'Tự đăng ký: "Đây là tôi"',who:'LI',
+ say:'Lần đầu mở link, thành viên đăng nhập gmail của mình, chọn tên mình trong đoàn, đọc rõ dữ liệu nào được chia sẻ, rồi gửi đăng ký.',
+ do:['Đăng nhập Google bằng gmail cá nhân.','Chọn tên mình trong danh sách, đánh dấu đồng ý, bấm <b>Gửi đăng ký</b>.','Chờ trưởng đoàn duyệt (thường vài phút).'],
+ sen:['Hiện danh sách tên đọc từ mô tả đoàn, ẩn những tên đã có người nhận.','Sau khi được duyệt: tạo thư mục riêng trong Drive của Linh, mở quyền vào thư mục chung, hiện các yêu cầu bổ sung.'],
+ note:'',
+ screen:()=>`<div class="app">${hd({art:1,ey:'LỜI MỜI TỪ TUẤN ANH',t:TRIP,sub:'12 – 23.12.2026 · 6 người'})}
+  <div class="bd">
+   <div class="card"><div class="row">${av('LI',34)}<span class="grow"><span class="muted">Đăng nhập bằng</span><div><b>khanhlinh.ng@gmail.com</b></div></span></div></div>
+   <div class="card"><h4>Anh/chị là ai trong đoàn?</h4><ul class="list" style="margin-top:4px">
+    <li><span style="width:20px;height:20px;border-radius:50%;border:6px solid #16213E;flex:0 0 20px"></span><span class="grow"><b>Linh</b> <span class="muted">· gia đình Linh</span></span></li>
+    <li><span style="width:20px;height:20px;border-radius:50%;border:2px solid #8A96B0;flex:0 0 20px"></span><span class="grow"><b>Minh</b> <span class="muted">· gia đình Linh</span></span></li>
+    <li><span style="width:20px;height:20px;border-radius:50%;border:2px solid #8A96B0;flex:0 0 20px"></span><span class="grow"><b>Quân</b></span></li>
+    <li style="color:#8A96B0"><span style="width:20px"></span><span class="grow">Tuấn Anh, Hà · đã có người nhận</span></li></ul></div>
+   <div class="card" style="display:flex;flex-direction:column;gap:6px"><h4>Đoàn sẽ thấy gì?</h4>
+    <div class="row" style="font-size:13px"><span class="st ok">${I.ok}</span><span>Trạng thái Đủ/Thiếu của từng giấy tờ</span></div>
+    <div class="row" style="font-size:13px"><span class="st bad">${I.no}</span><span>Ảnh giấy tờ, sao kê ngân hàng: <b>không</b>, chúng ở Drive của anh/chị</span></div>
+    <label class="row" style="font-size:13px;margin-top:4px;align-items:flex-start"><input type="checkbox" checked style="width:20px;height:20px;accent-color:#16213E;flex:0 0 20px">Đồng ý cho trưởng đoàn dùng thông tin hộ chiếu để lập danh sách đoàn gửi đại lý</label></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Gửi đăng ký</button></div></div>`},
+
+{ch:2,id:'duyet',title:'Trưởng đoàn duyệt người đăng ký',who:'TA',
+ say:'Mỗi khi có người đăng ký qua link chung, trưởng đoàn nhận thông báo và chỉ cần bấm Duyệt.',
+ do:['Xem gmail và tên người đó chọn. Bấm <b>Duyệt</b> nếu đúng người, <b>Từ chối</b> nếu lạ.'],
+ sen:['So gmail với tên người đó chọn, báo nếu có điểm đáng ngờ (ví dụ hai gmail cùng chọn một tên).','Sau khi duyệt: chia sẻ thư mục chung cho gmail đó và gửi các yêu cầu bổ sung đến màn hình của họ.'],
+ note:'<p>Người chưa được duyệt không thấy bất kỳ thông tin nào của đoàn.</p>',
+ screen:()=>`<div class="app">${hd({meta:TRIP,t:'Chờ anh/chị duyệt',sub:'2 người đăng ký qua link chung'})}
+  <div class="bd">
+   <div class="card"><div class="row">${av('LI',38)}<span class="grow"><b>Linh</b><div class="muted">khanhlinh.ng@gmail.com · 3 phút trước</div></span></div>
+    <div class="row muted" style="margin-top:8px;font-size:12.5px">${I.ok}<span>Đã đồng ý cho trưởng đoàn dùng thông tin hộ chiếu để lập danh sách đoàn</span></div>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn dark sm hot" data-go="next" type="button" style="flex:1">Duyệt</button><button class="btn sec sm" type="button" style="flex:1">Từ chối</button></div></div>
+   <div class="card"><div class="row">${av('QU',38)}<span class="grow"><b>Quân</b><div class="muted">quan.ng.work@gmail.com · 10 phút trước</div></span></div>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn dark sm" type="button" style="flex:1">Duyệt</button><button class="btn sec sm" type="button" style="flex:1">Từ chối</button></div></div>
+   <div class="card"><h4>Tình trạng</h4><ul class="list" style="font-size:13px;margin-top:4px">
+    <li><span class="grow">Hà</span><span class="chip ok">Đã vào</span></li>
+    <li><span class="grow">Linh, Quân</span><span class="chip warn">Chờ duyệt</span></li>
+    <li><span class="grow">Minh</span><span class="chip bad">Chưa đăng ký</span></li>
+    <li><span class="grow">Bông</span><span class="chip kid">Theo Linh</span></li></ul></div>
+  </div></div>`},
+
+{ch:2,id:'hoso',title:'Màn hình hồ sơ của thành viên',who:'LI',
+ say:'Thành viên thấy ngay những gì trưởng đoàn cần, tin nhắn riêng, và hồ sơ của con mình.',
+ do:['Đọc lời nhắn của trưởng đoàn.','Bấm nút máy ảnh cạnh mục cần bổ sung.'],
+ sen:['Xếp mục gấp nhất lên đầu.','Gom hồ sơ của Bông vào một khối riêng vì Linh là người giám hộ.'],
+ note:'',
+ screen:()=>`<div class="app"><div class="hd"><div class="row">${ring(2,5,'#F2C14E').replace('#E6EAF2','#34436A').replace('<b>','<b style="color:#fff">')}<span><div class="sub" style="margin:0">Xin chào Linh</div><div class="t1" style="margin:0">Hồ sơ của anh/chị</div></span></div></div>
+  <div class="bd">
+   <div class="sen">${LOTUS}<span>Trưởng đoàn Tuấn Anh yêu cầu bổ sung <b>7 mục</b>. Gấp nhất: <b>hộ chiếu của Bông</b>, hạn 25.10.</span></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #DCCDEA"><div class="row">${av('TA',30)}<span class="grow" style="font-size:12.5px"><b>Tuấn Anh</b> <span class="muted">· nhắn riêng</span></span>${I.lock}</div><p style="margin:8px 0 0">Linh ơi nhớ nộp hộ chiếu của Bông trước 25.10 nha.</p></div>
+   <div class="card" style="padding:0;overflow:hidden;box-shadow:inset 0 0 0 2px #DCCDEA"><div class="row" style="background:#F5F0FA;padding:10px 12px">${av('BO',34)}<span><b>Hồ sơ của Bông</b><div class="muted">Con gái, 8 tuổi · anh/chị là người giám hộ</div></span></div>
+    <ul class="list" style="padding:0 12px 6px">
+     <li><span class="grow"><b>Hộ chiếu</b><div class="muted">Hạn 25.10</div></span><span class="chip bad">Thiếu</span><span class="ib hot" data-go="next" role="button" tabindex="0" style="background:#C63C23">${I.cam}</span></li>
+     <li><span class="grow"><b>Visa Anh, Schengen</b><div class="muted">Hạn 30.10</div></span><span class="chip bad">Thiếu</span><span class="ib" style="background:#C63C23">${I.cam}</span></li>
+     <li><span class="grow"><b>Giấy khai sinh</b><div class="muted">Sen gợi ý · hạn 25.10</div></span><span class="chip info">Gợi ý</span><span class="ib" style="background:#C63C23">${I.cam}</span></li>
+     <li><span class="grow"><b>Vé máy bay</b><div class="muted">Có trên vé đoàn</div></span><span class="chip ok">Đủ</span><span style="width:40px"></span></li></ul></div>
+   <div class="card"><div class="row"><h4 class="grow">Bảo hiểm gia đình, 3 người</h4><span class="chip bad">Thiếu</span></div><div class="muted" style="margin-top:4px">Hạn 25.10. Cần có trước khi nộp hồ sơ visa Schengen cho đại lý.</div></div>
+  </div>${tabbar('Hồ sơ')}</div>`},
+
+{ch:2,id:'chup',title:'Chụp giấy tờ',who:'LI',
+ say:'Chỉ cần đưa điện thoại vào trang thông tin hộ chiếu và chụp.',
+ do:['Căn trang giấy tờ vào khung, bấm chụp. Có thể chọn file PDF hoặc ảnh có sẵn.'],
+ sen:['Đọc ảnh ngay sau khi chụp.'],
+ note:'<p>Mất mạng cũng chụp được. Ảnh xếp hàng chờ và tự gửi khi có sóng.</p>',
+ screen:()=>`<div class="app cam"><div style="position:absolute;inset:0;display:grid;place-items:center">
+  <svg width="230" height="160" viewBox="0 0 230 160" aria-hidden="true"><rect width="230" height="160" rx="8" fill="#2D3E63"/><rect x="14" y="18" width="62" height="78" rx="4" fill="#8E9BB8"/><circle cx="45" cy="48" r="16" fill="#C9D1E2"/><path d="M22 92 Q45 66 68 92 Z" fill="#C9D1E2"/><g fill="#C9D1E2"><rect x="90" y="22" width="110" height="7" rx="2"/><rect x="90" y="40" width="80" height="6" rx="2"/><rect x="90" y="56" width="96" height="6" rx="2"/><rect x="90" y="72" width="70" height="6" rx="2"/></g><g fill="#6F7FA3"><rect x="14" y="118" width="202" height="6" rx="2"/><rect x="14" y="132" width="202" height="6" rx="2"/></g></svg>
+  <span style="position:absolute;width:262px;height:192px;border:2px solid #F2C14E;border-radius:14px"></span></div>
+  <div style="position:absolute;top:16px;left:16px;right:16px" class="row"><span class="ib" style="background:rgba(255,255,255,.16)">${I.x}</span><span class="grow" style="text-align:center;color:#fff;font-size:13px">Hộ chiếu của Bông</span><span style="width:40px"></span></div>
+  <div style="position:absolute;left:0;right:0;bottom:34px;display:flex;justify-content:center;align-items:center;gap:40px;color:#fff;font-size:12px"><span>Chọn file</span><button class="hot" data-go="next" type="button" aria-label="Chụp" style="width:72px;height:72px;border-radius:50%;border:5px solid #fff;background:#C63C23"></button><span>Đèn</span></div>
+  <div style="position:absolute;left:0;right:0;bottom:120px;text-align:center;color:#C9D2E6;font-size:12.5px">Căn trang thông tin vào khung vàng</div></div>`},
+
+{ch:2,id:'sendoc',title:'Sen đọc và kiểm tra',who:'LI',
+ say:'Sen đọc ra thông tin, kiểm tra theo quy tắc của chuyến đi, đặt tên file và cho thành viên xác nhận.',
+ do:['Kiểm tra kết quả, sửa nếu sai, bấm <b>Lưu</b>.'],
+ sen:['Đọc tên và ngày hết hạn, kiểm tra còn hạn đủ 6 tháng sau ngày về 23.12.2026.','Xác nhận TRAN BAO NGOC chính là Bông, khớp với tên trên vé.','Đặt tên file chuẩn, lưu vào Drive riêng của Linh, báo "Đủ" lên dashboard đoàn. Ảnh không rời Drive của Linh.'],
+ note:'',
+ screen:()=>`<div class="app" style="background:#0D1324">
+  <div style="height:220px;flex:0 0 220px;display:grid;place-items:center"><svg width="190" height="132" viewBox="0 0 230 160" aria-hidden="true" style="transform:rotate(-3deg)"><rect width="230" height="160" rx="8" fill="#2D3E63"/><rect x="14" y="18" width="62" height="78" rx="4" fill="#8E9BB8"/><g fill="#C9D1E2"><rect x="90" y="22" width="110" height="7" rx="2"/><rect x="90" y="40" width="80" height="6" rx="2"/><rect x="90" y="56" width="96" height="6" rx="2"/></g></svg></div>
+  <div style="background:#fff;border-radius:22px 22px 0 0;padding:12px 14px 16px;display:flex;flex-direction:column;gap:10px;flex:1">
+   <span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#D5DBE7"></span>
+   <div class="row" style="color:#B24A6E">${LOTUS}<b class="grow" style="color:#1B2333;font-size:16px">Sen đã đọc hộ chiếu</b><span class="muted">Sai đâu sửa giúp em</span></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="grid-column:1/-1"><span class="lbl">Họ tên</span><div class="in" style="font-weight:600">TRAN BAO NGOC <span class="muted" style="font-weight:400">(Bông)</span></div></div>
+    <div><span class="lbl">Hết hạn</span><div class="in">03.09.2031</div></div><div><span class="lbl">Thuộc hồ sơ</span><div class="in">Bông</div></div>
+    <div style="grid-column:1/-1"><span class="lbl">Tên file</span><div class="in" style="font-size:12.5px">20261015_HoChieu_TranBaoNgoc.jpg</div></div></div>
+   <div class="sen" style="background:#E3EEF7;color:#17496B">${I.ok.replace('3.2','2.6').replace('13','18').replace('13','18')}<span><b>Đạt:</b> còn hạn đến 2031, đủ 6 tháng sau ngày về. Tên khớp với vé đoàn.</span></div>
+   <div class="row muted">${I.lock}<span>Lưu vào Drive riêng của anh/chị. Đoàn chỉ thấy "Đủ".</span></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Lưu</button></div></div>`},
+
+{ch:2,id:'canxemlai',title:'Khi Sen phát hiện vấn đề, hoặc chưa có giấy tờ',who:'LI',
+ say:'Không phải lúc nào cũng có sẵn giấy tờ. Sen chỉ ra chỗ chưa đạt, và thành viên có thể gõ tình trạng thay vì chụp.',
+ do:['Với bảo hiểm: đọc lý do Sen đưa ra, đổi gói rồi upload bản mới.','Với visa chưa có: gõ tình trạng vào ô chữ, ví dụ "đã nộp hồ sơ, hẹn lấy sinh trắc học 24.10", bấm <b>Lưu</b>.'],
+ sen:['Bảo hiểm Linh upload chỉ phủ đến 22.12 và mức bảo hiểm y tế 20.000 EUR; hồ sơ Schengen cần tối thiểu 30.000 EUR. Sen báo "Cần xem lại" kèm lý do cụ thể.','Ghi tình trạng visa thành "Đang làm" trên dashboard đoàn, trưởng đoàn thấy ngay.'],
+ note:'',
+ screen:()=>`<div class="app"><div class="hd"><div class="row">${ring(3,5,'#F2C14E').replace('#E6EAF2','#34436A').replace('<b>','<b style="color:#fff">')}<span><div class="sub" style="margin:0">Linh</div><div class="t1" style="margin:0">Hồ sơ của anh/chị</div></span></div></div>
+  <div class="bd">
+   <div class="card" style="box-shadow:inset 0 0 0 2px #F2D9A8"><div class="row"><h4 class="grow">Bảo hiểm gia đình, 3 người</h4><span class="chip warn">Cần xem lại</span></div>
+    <div class="sen" style="margin-top:8px">${LOTUS}<span>Em thấy bảo hiểm anh/chị upload hết hạn <b>22.12</b>, nhưng đoàn về <b>23.12</b>. Mức bảo hiểm y tế là 20.000 EUR, còn hồ sơ visa Schengen cần <b>tối thiểu 30.000 EUR</b>.</span></div>
+    <button class="btn sec" type="button" style="margin-top:8px;min-height:42px">Upload bản mới</button></div>
+   <div class="card"><div class="row"><h4 class="grow">Visa Anh</h4><span class="chip warn">${I.clock}Đang làm</span></div>
+    <label class="lbl" for="d-visa" style="margin-top:8px">Hoặc ghi tình trạng</label><input id="d-visa" class="in" value="Đã nộp hồ sơ, hẹn lấy sinh trắc học 24.10">
+    <div class="row" style="margin-top:8px"><span class="muted grow">Chia sẻ với: cả đoàn</span><button class="btn dark sm hot" data-go="next" type="button">Lưu</button></div></div>
+   <div class="card"><div class="row"><h4 class="grow">Liên hệ khẩn cấp</h4><span class="chip bad">Thiếu</span></div><div class="row muted" style="margin-top:4px;color:#7A4E0E">${I.lock}<span>Chỉ trưởng đoàn thấy</span></div></div>
+  </div>${tabbar('Hồ sơ')}</div>`},
+
+{ch:2,id:'xuatds',title:'Xuất danh sách đoàn cho đại lý',who:'TA',
+ say:'Đại lý luôn cần danh sách đoàn có số hộ chiếu. Khi mọi người đã đủ hộ chiếu, trưởng đoàn xuất một file PDF để gửi đại lý.',
+ do:['Bấm <b>Xuất danh sách đoàn</b> trên dashboard.','Đối chiếu từng dòng với ảnh gốc, nhất là dòng tô vàng.','Bấm <b>Xuất PDF</b>, rồi tự gửi file cho đại lý.'],
+ sen:['Đọc số hộ chiếu, ngày sinh, ngày cấp, ngày hết hạn từ ảnh, ngay lúc xuất.','Tô vàng dòng đọc chưa chắc để trưởng đoàn kiểm tra.','Lưu PDF vào thư mục riêng của trưởng đoàn. Số hộ chiếu không được lưu vào Sheet nào; mỗi thành viên được báo là thông tin của họ vừa được đưa vào danh sách.'],
+ note:'<p>Trong demo, số hộ chiếu được che bớt. Sau chuyến 30 ngày, Sen nhắc trưởng đoàn xoá file này.</p>',
+ screen:()=>{const r=(n,b,p,y)=>`<tr${y?' style="background:#FDF6E8"':''}><td style="text-align:left;padding:6px 2px"><b>${n}</b><div class="muted" style="font-size:11px">${b}</div></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px">${p}</td></tr>`;
+  return `<div class="app">${hd({meta:TRIP,t:'Danh sách đoàn',sub:'Xem trước trước khi xuất PDF cho đại lý'})}
+  <div class="bd">
+   <div class="card"><table class="mx" style="font-size:12.5px"><thead><tr><th style="text-align:left">Họ tên theo hộ chiếu</th><th>Số hộ chiếu</th></tr></thead><tbody>
+    ${r('NGUYEN TUAN ANH','Nam · 1981 · P.301','C12••••89')}${r('DO THU HA','Nữ · 1984 · P.301','C40••••17')}${r('NGUYEN KHANH LINH','Nữ · 1986 · P.302','C71••••02')}${r('TRAN QUANG MINH','Nam · 1983 · P.302','C55••••36')}${r('TRAN BAO NGOC','Nữ · 2018 · P.302 · trẻ em','C98••••41',1)}${r('NGUYEN MINH QUAN','Nam · 1990 · P.303','C33••••70')}</tbody></table>
+    <div class="sen" style="margin-top:10px;background:#FDF6E8;color:#5E3B09">${I.ex.replace('3.2','2.6')}<span>Dòng tô vàng: ảnh hộ chiếu của Bông hơi loá ở ngày cấp, anh/chị đối chiếu giúp em với ảnh gốc nhé.</span></div></div>
+   <div class="row muted">${I.lock}<span>File lưu trong thư mục riêng của anh/chị. Số hộ chiếu không lưu vào Sheet nào.</span></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Xuất PDF</button></div></div>`}},
+
+// ===== Trong chuyến đi =====
+{ch:3,id:'thekhancap',title:'Trước ngày bay: lưu Thẻ khẩn cấp',who:'LI',
+ say:'Ở nước ngoài có lúc mất mạng, hết pin dự phòng, hay đi lạc. Mỗi người lưu sẵn một Thẻ khẩn cấp vào điện thoại, mở được cả khi không có mạng.',
+ do:['Bấm <b>Lưu vào máy</b> để tải thẻ thành ảnh và PDF.','Mỗi tối Sen nhắc lưu thẻ mới, vì địa chỉ khách sạn thay đổi.'],
+ sen:['Gom giấy tờ của chính người đó: hộ chiếu, visa, bảo hiểm và đường dây nóng.','Ghi địa chỉ khách sạn bằng tiếng địa phương để đưa tài xế taxi.','Thêm số trưởng đoàn, hướng dẫn viên, xe đoàn, đại lý, số khẩn cấp nước sở tại, đại sứ quán Việt Nam.','Linh là người hỗ trợ của Bông nên có thêm thẻ của Bông.'],
+ note:'<p>Thẻ của ai chỉ có giấy tờ của người đó. Số liên lạc trong demo được che bớt; số đại sứ quán và số khẩn cấp lấy từ nguồn chính thức, trưởng đoàn kiểm tra lại trước chuyến.</p>',
+ screen:()=>`<div class="app">${hd({meta:'Trước ngày bay · 11.12',t:'Thẻ khẩn cấp',sub:'Mở được khi không có mạng'})}
+  <div class="bd">
+   <div class="card" style="box-shadow:inset 0 0 0 2px #C63C23">
+    <div class="row"><b class="grow" style="color:#9A2E1E;letter-spacing:.06em;font-size:12px">THẺ KHẨN CẤP · NGUYEN KHANH LINH</b>${av('LI',30)}</div>
+    <ul class="list" style="font-size:12.5px;margin-top:4px">
+     <li><span class="grow"><b>Hộ chiếu</b> C71••••02 · hết hạn 2032</span></li>
+     <li><span class="grow"><b>Visa</b> Anh (đến 06.2027) · Schengen (12–23.12)</span></li>
+     <li><span class="grow"><b>Bảo hiểm</b> HĐ ••••5521 · đường dây nóng 24/7: +84 ••• ••• 88</span></li>
+     <li><span class="grow"><b>Đêm nay</b> khách sạn ở London<div class="muted">Địa chỉ tiếng Anh để đưa tài xế taxi · bấm để phóng to</div></span></li>
+     <li><span class="grow"><b>Trưởng đoàn</b> Tuấn Anh · <b>HDV</b> Mr. David · <b>Xe</b> biển số trong tin đại lý</span></li>
+     <li><span class="grow"><b>Khẩn cấp tại Anh</b> 999 · <b>Đại sứ quán VN tại Anh</b> số bảo hộ công dân</span></li></ul></div>
+   <div class="card row">${av('BO',34)}<span class="grow"><b>Thẻ của Bông</b><div class="muted">Anh/chị là người hỗ trợ</div></span><span class="chip ok">Đã có</span></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Lưu vào máy (ảnh và PDF)</button></div></div>`},
+
+// ===== Trong chuyến đi =====
+{ch:3,id:'hoadon',title:'Chụp hoá đơn ăn chung, Sen chia tiền',who:'QU',
+ say:'Ai trả tiền thì người đó chụp hoá đơn. Sen đọc số tiền, quy đổi sang tiền Việt, và chia theo cách đoàn đã chọn.',
+ do:['Chụp hoá đơn, chọn <b>Chung cho đoàn</b>, chọn người cùng ăn, bấm <b>Lưu</b>.'],
+ sen:['Đọc tên quán, số tiền, loại tiền.','Quy đổi theo tỷ giá Vietcombank (giá bán) của ngày chi tiêu và chốt luôn tỷ giá đó.','Chia theo gia đình như mô tả đoàn: 2 phần, 3 phần, 1 phần.'],
+ note:'<p>Ví dụ này là bữa tối ở Edinburgh, trả bằng bảng Anh. Với króna Iceland (ISK), nếu Vietcombank không niêm yết tỷ giá, Sen hỏi trưởng đoàn nhập tỷ giá. Số tiền trên màn hình là số minh hoạ.</p>',
+ screen:()=>`<div class="app" style="background:#0D1324"><div style="height:170px;flex:0 0 170px;display:grid;place-items:center"><svg width="110" height="150" viewBox="0 0 110 150" aria-hidden="true" style="transform:rotate(-4deg)"><path d="M0 0H110V142L100 150 90 142 80 150 70 142 60 150 50 142 40 150 30 142 20 150 10 142 0 150Z" fill="#F7F4EC"/><rect x="28" y="12" width="54" height="7" rx="2" fill="#2A2A2A"/><g fill="#9A958A"><rect x="10" y="34" width="56" height="4"/><rect x="80" y="34" width="20" height="4"/><rect x="10" y="46" width="44" height="4"/><rect x="80" y="46" width="20" height="4"/><rect x="10" y="58" width="60" height="4"/><rect x="80" y="58" width="20" height="4"/></g><rect x="10" y="80" width="90" height="1.5" fill="#9A958A"/><rect x="10" y="90" width="34" height="6" fill="#2A2A2A"/><rect x="66" y="90" width="34" height="6" fill="#2A2A2A"/></svg></div>
+  <div style="background:#fff;border-radius:22px 22px 0 0;padding:12px 14px 16px;display:flex;flex-direction:column;gap:10px;flex:1">
+   <span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#D5DBE7"></span>
+   <div class="row" style="color:#B24A6E">${LOTUS}<b class="grow" style="color:#1B2333;font-size:16px">Sen đã đọc hoá đơn</b></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="grid-column:1/-1"><span class="lbl">Nơi chi</span><div class="in">Nhà hàng ở Old Town, Edinburgh · ăn tối</div></div><div><span class="lbl">Số tiền</span><div class="in" style="font-weight:700">186 GBP</div></div><div><span class="lbl">Quy đổi</span><div class="in" style="background:#F4F6FA">≈ 6,2 triệu ₫</div></div></div>
+   <div class="muted">Tỷ giá Vietcombank (bán) ngày 17.12, số minh hoạ</div>
+   <div><span class="lbl">Lưu vào</span><div style="display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:12px;background:#EEF1F6"><span style="text-align:center;padding:9px 0;color:#33405E">Cá nhân</span><span style="text-align:center;padding:9px 0;background:#fff;border-radius:9px;font-weight:700;box-shadow:0 1px 2px rgba(15,24,48,.15)">Chung cho đoàn</span></div></div>
+   <div><span class="lbl">Chia theo gia đình</span><ul class="list" style="font-size:13px"><li><span class="grow">Gia đình Tuấn Anh · 2 phần</span><b>2,07 tr</b></li><li><span class="grow">Gia đình Linh · 3 phần</span><b>3,10 tr</b></li><li><span class="grow">Quân · 1 phần</span><b>1,03 tr</b></li></ul></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Lưu và ghi vào sổ quỹ</button></div></div>`},
+
+{ch:3,id:'dashboard2',title:'Trưởng đoàn theo dõi trong chuyến',who:'TA',
+ say:'Trên dashboard, trưởng đoàn thấy cả đoàn đã sẵn sàng, quỹ còn bao nhiêu, và ai cần chuyển cho ai.',
+ do:['Xem tóm tắt buổi sáng của Sen.','Xem quỹ chung và bảng "ai chuyển cho ai".'],
+ sen:['Tóm tắt mỗi sáng: lịch hôm nay, việc còn lại, nhắc thời tiết.','Cộng dồn chi tiêu chung và tính bảng cân đối giữa các gia đình.'],
+ note:'',
+ screen:()=>`<div class="app"><div class="hd">${ART}<div class="bar"><span class="ib">${I.back}</span><span class="meta">Edinburgh · 17.12 · 08:00 · 4°C</span><span style="width:40px"></span></div><div class="ey" style="margin-top:40px">DASHBOARD ĐOÀN</div><div class="t1">${TRIP}</div><div class="sub">Ngày 6/12</div></div>
+  <div class="bd">
+   <div class="card" style="display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:-26px;position:relative"><div><b style="font-family:var(--font-display);font-size:19px">30/30</b><div class="muted" style="font-size:11px">giấy tờ đủ</div></div><div><b style="font-family:var(--font-display);font-size:19px">150/150</b><div class="muted" style="font-size:11px">triệu quỹ</div></div><div><b style="font-family:var(--font-display);font-size:19px">46,8</b><div class="muted" style="font-size:11px">triệu đã chi</div></div></div>
+   <div class="sen">${LOTUS}<span><b>Sen tóm tắt:</b> Cả đoàn đã đủ giấy tờ. Hôm nay tham quan lâu đài Edinburgh, chiều đi tàu lên Cao nguyên. Trời 4°C, có mưa phùn.</span></div>
+   <div class="card"><h4>Quỹ chung</h4><div style="margin-top:8px;height:10px;border-radius:5px;background:#E6EAF2;overflow:hidden"><div style="width:31%;height:100%;background:#2E5A88"></div></div><div class="muted" style="margin-top:4px">Đã chi 46,8 / 150 triệu</div>
+    <ul class="list" style="margin-top:8px;font-size:13px"><li><span class="grow">Hoá đơn mới · ăn tối Old Town</span><b>6,2 tr</b></li><li><span class="grow">Vé tàu London → Edinburgh</span><b>14,5 tr</b></li></ul></div>
+   <div class="card"><h4>Ai chuyển cho ai</h4><div class="muted">Tính đến hôm nay, theo gia đình</div><ul class="list" style="margin-top:6px;font-size:13px"><li><span class="grow">Quân → Tuấn Anh</span><b>1.030.000 ₫</b></li><li><span class="grow">Gia đình Linh → Tuấn Anh</span><b>2.480.000 ₫</b></li></ul></div>
+   <span class="btn dark hot" data-go="next" role="button" tabindex="0">Sang Iceland</span>
+  </div>${tabbar('Đoàn')}</div>`},
+
+{ch:3,id:'homnay',title:'Màn hình "Hôm nay" trong chuyến đi',who:'QU',
+ say:'Trong chuyến đi, câu hỏi thường gặp nhất là: giờ này đi đâu, việc của tôi là gì. Trang "Hôm nay" trả lời ngay.',
+ do:['Mở app, xem lịch trong ngày, bấm địa điểm để mở bản đồ.','Đến điểm tập trung thì bấm <b>Tôi đã có mặt</b>.'],
+ sen:['Đổi màu và hình minh hoạ theo nơi đang đến, mùa, giờ trong ngày, thời tiết: ở Iceland là trời đêm và cực quang.','Nhắc theo thời tiết và theo người: Quân ăn chay nên Sen gợi ý chỗ ăn có món chay.'],
+ note:'<p>Giấy tờ quan trọng (vé, xác nhận khách sạn) được lưu sẵn để mở khi mất mạng, hữu ích khi đi tour vùng xa ở Iceland.</p>',
+ screen:()=>`<div class="app"><div class="hd" style="min-height:220px;display:flex;flex-direction:column;justify-content:flex-end">${ART}<div class="bar" style="position:absolute;top:14px;left:16px;right:16px"><span class="meta" style="background:rgba(15,24,48,.7);padding:5px 10px;border-radius:999px">Reykjavik · 20.12 · −2°C, gió mạnh</span>${av('QU',36)}</div><div class="ey">NGÀY 9 · CHỦ NHẬT 20.12</div><div class="t1">Vòng Vàng và săn cực quang</div></div>
+  <div class="bd">
+   <div class="card" style="box-shadow:inset 0 0 0 2px #2E5A88"><div class="row"><span class="grow"><div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#2E5A88">ĐIỂM DANH · 08:45</div><b>Sảnh khách sạn · xe đón 09:00</b></span></div><button class="btn dark hot" data-go="next" type="button" style="margin-top:8px;min-height:44px">Tôi đã có mặt</button></div>
+   <div class="sen">${LOTUS}<span>Hôm nay chỉ có khoảng 4 tiếng trời sáng, xe đón lúc 09:00. Anh/chị mặc nhiều lớp và đi giày chống trơn nhé. Trưa nay em đã chọn chỗ có món chay.</span></div>
+   <div class="card"><h4>Lịch hôm nay</h4><ul class="list" style="margin-top:4px">
+    <li><b style="flex:0 0 44px;color:#16213E">09:00</b><span class="grow"><b>Xe tour đón ở khách sạn</b><div class="muted">Vòng Vàng: Þingvellir, Geysir, Gullfoss</div></span></li>
+    <li><b style="flex:0 0 44px;color:#16213E">12:30</b><span class="grow"><b>Ăn trưa gần Geysir</b><div class="muted">Có món chay cho anh/chị</div></span></li>
+    <li><b style="flex:0 0 44px;color:#16213E">21:00</b><span class="grow"><b>Săn cực quang</b><div class="muted">Tuỳ thời tiết, Sen sẽ nhắc lúc 19:00</div></span></li></ul><span class="btn sec sm" style="margin-top:8px;width:100%">${I.cal}Xem lịch ngày mai</span></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><span class="btn pri" style="min-height:64px;flex-direction:column;gap:2px;font-size:13px">${I.cam}Chụp hoá đơn</span><span class="btn dark" style="min-height:64px;flex-direction:column;gap:2px;font-size:13px">${I.grp}Dashboard đoàn</span></div>
+  </div>${tabbar('Hôm nay')}</div>`},
+
+{ch:3,id:'diemdanh',title:'Điểm danh theo lịch trình',who:'TA',
+ say:'Mỗi giờ tập trung trong lịch trình tự có một phiên điểm danh. Trưởng đoàn biết ngay ai đã có mặt, ai còn thiếu, không phải đếm đầu người.',
+ do:['Chạm tên người đã có mặt, hoặc để mọi người tự bấm "Tôi đã có mặt".','Với người còn thiếu: bấm gọi điện hoặc nhắn riêng.'],
+ sen:['Lấy giờ và điểm hẹn từ lịch trình, tự trừ người đang có lịch riêng.','Nhắc người chưa bấm 20 phút trước giờ tập trung; quá giờ thì báo trưởng đoàn.','Đưa con số "5/6 có mặt" lên Dashboard đoàn gần như tức thì.'],
+ note:'<p>App không theo dõi vị trí. Mỗi người chỉ bấm một lần khi đã có mặt. Người hỗ trợ bấm thay cho trẻ em hoặc bố mẹ lớn tuổi.</p>',
+ screen:()=>{const p=(k,n,st,how)=>`<li>${av(k,34)}<span class="grow"><b>${n}</b><div class="muted">${how}</div></span>${st==='ok'?'<span class="st ok" style="width:30px;height:30px">'+I.ok+'</span>':'<span class="ib" style="background:#fff;color:#1B2333;border:1px solid #C9D1E2;width:38px;height:38px">'+I.bell+'</span>'}</li>`;
+  return `<div class="app"><div class="hd">${ART}<div class="bar"><span class="ib">${I.back}</span><span class="meta">Reykjavik · 20.12 · 08:52</span><span style="width:40px"></span></div><div class="ey" style="margin-top:30px">ĐIỂM DANH · XE ĐÓN 09:00</div><div class="t1">Sảnh khách sạn</div></div>
+  <div class="bd">
+   <div class="card row" style="margin-top:-24px;position:relative">${ring(5,6,'#2E5A88')}<span class="grow"><b style="font-size:16px">5/6 đã có mặt</b><div class="muted">Còn 8 phút · Sen đã nhắc Minh lúc 08:40</div></span></div>
+   <div class="card"><ul class="list">
+    ${p('TA','Tuấn Anh','ok','Tự bấm 08:41')}${p('HA','Hà','ok','Tự bấm 08:41')}${p('LI','Linh','ok','Tự bấm 08:47')}${p('BO','Bông','ok','Linh bấm thay 08:47')}${p('QU','Quân','ok','Tự bấm 08:50')}${p('MI','Minh','no','Chưa bấm')}</ul>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn dark sm hot" data-go="next" type="button" style="flex:1">Gọi Minh</button><button class="btn sec sm" type="button" style="flex:1">Nhắn riêng</button></div></div>
+  </div>${tabbar('Đoàn')}</div>`}},
+
+{ch:3,id:'doilich',title:'Trưởng đoàn đổi lịch trình một ngày',who:'TA',
+ say:'Lịch trình hay thay đổi vì thời tiết, đóng cửa, hay đơn giản là cả đoàn muốn khác đi. Sau khi đã chốt với mọi người, trưởng đoàn gõ lịch mới cho ngày đó, như viết tin nhắn.',
+ do:['Vào <b>Lịch trình</b>, chọn ngày cần đổi.','Gõ lịch mới vào ô <b>Lịch mới</b>, viết tự nhiên.','Xem Sen trình bày lại, kiểm tra phần thay đổi, bấm <b>Cập nhật lịch cho cả đoàn</b>.','Bấm <b>Chia sẻ lên nhóm Zalo</b> để cả đoàn đọc ngay trong nhóm.'],
+ sen:['Chuyển đoạn văn thành lịch có giờ, đánh dấu mục <b>mới</b>, <b>huỷ</b>, <b>đổi</b> so với lịch cũ.','Dò trong tài liệu đã đặt: tour bờ biển phía Nam đã trả tiền 6 vé, nên tạo việc "Yêu cầu hoàn tiền" cho trưởng đoàn; vé Blue Lagoon chưa có trong thư mục, nên nhắc upload.','Cập nhật lịch mới lên Dashboard đoàn và màn hình của từng người, gửi thông báo cho cả đoàn.'],
+ note:'<p>Ô lịch mới dành cho lịch <b>đã chốt</b>. Nếu còn đang bàn, trưởng đoàn dùng <b>Lời nhắn</b> để hỏi ý kiến cả đoàn trước.</p>',
+ screen:()=>{const d=(t,on)=>`<span class="pill${on?' on':''}" style="min-height:44px;min-width:48px;padding:0 6px;display:grid;place-items:center;line-height:1.1;font-size:12px"><span>${t}</span></span>`;
+  return `<div class="app">${hd({meta:'Lịch trình · Reykjavik',t:'Đổi lịch ngày 21.12',sub:'Anh/chị gõ lịch mới sau khi đã chốt với cả đoàn'})}
+  <div class="bd">
+   <div class="row" style="gap:6px;overflow-x:auto">${d('N8<br>19.12')}${d('N9<br>20.12')}${d('N10<br>21.12',1)}${d('N11<br>22.12')}${d('N12<br>23.12')}</div>
+   <div class="card" style="background:#F4F6FA;box-shadow:none"><div class="muted" style="font-weight:600">Lịch hiện tại</div><ul class="list" style="font-size:13px;color:#5A6684">
+    <li><b style="flex:0 0 44px">08:00</b><span class="grow">Tour bờ biển phía Nam: Seljalandsfoss, bãi cát đen Vík</span></li>
+    <li><b style="flex:0 0 44px">19:00</b><span class="grow">Ăn tối ở Vík, về Reykjavik</span></li></ul></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #16213E"><label class="lbl" for="d-newday" style="font-weight:700;color:#1B2333;font-size:14px">Lịch mới</label>
+    <textarea id="d-newday" class="in" rows="6">Có cảnh báo bão tuyết ở bờ biển phía Nam nên huỷ tour. Sáng nghỉ ở khách sạn. 13:00 đi Blue Lagoon, xe đón 12:15. 19:00 cả đoàn ăn tối ở nhà hàng gần khách sạn.</textarea></div>
+   <div class="row" style="color:#B24A6E;font-weight:700">${LOTUS}<span style="color:#1B2333">Em hiểu lịch mới như sau</span></div>
+   <div class="card"><ul class="list" style="font-size:13.5px">
+    <li><b style="flex:0 0 44px;color:#9A2E1E;text-decoration:line-through">08:00</b><span class="grow" style="color:#5A6684;text-decoration:line-through">Tour bờ biển phía Nam</span><span class="chip bad">Huỷ</span></li>
+    <li><b style="flex:0 0 44px">Sáng</b><span class="grow">Nghỉ ở khách sạn</span><span class="chip info">Mới</span></li>
+    <li><b style="flex:0 0 44px">12:15</b><span class="grow">Xe đón đi Blue Lagoon</span><span class="chip info">Mới</span></li>
+    <li><b style="flex:0 0 44px">13:00</b><span class="grow">Blue Lagoon</span><span class="chip info">Mới</span></li>
+    <li><b style="flex:0 0 44px">19:00</b><span class="grow">Ăn tối gần khách sạn</span><span class="chip warn">Đổi chỗ</span></li></ul></div>
+   <div class="sen">${LOTUS}<span>Tour bờ biển phía Nam đã trả tiền 6 vé, em tạo việc <b>"Yêu cầu hoàn tiền tour"</b> cho anh/chị. Vé Blue Lagoon chưa có trong thư mục, anh/chị nhớ upload nhé.</span></div>
+  </div><div class="cta"><button class="btn pri hot" data-go="next" type="button">Cập nhật lịch cho cả đoàn</button><button class="btn sec" type="button" style="margin-top:8px;min-height:42px;color:#0068FF">Chia sẻ lên nhóm Zalo</button><div class="muted" style="text-align:center;margin-top:6px">Sen báo lịch mới cho cả 6 người trong app</div></div></div>`}},
+
+{ch:3,id:'lichmoi',title:'Thành viên thấy lịch mới, và xin lịch riêng',who:'QU',
+ say:'Mọi người mở app là thấy ngay lịch đã đổi, phần thay đổi được đánh dấu. Ai muốn đi riêng một phần thì gõ vào ô ngay dưới lịch.',
+ do:['Đọc lịch mới, những mục có nhãn <b>Mới</b>, <b>Huỷ</b> là phần thay đổi.','Nếu muốn đi riêng: gõ vào ô <b>Anh/chị muốn đổi lịch riêng?</b>, ví dụ đi đâu, từ mấy giờ, gặp lại đoàn ở đâu.','Bấm <b>Gửi cho trưởng đoàn</b>.'],
+ sen:['Chuyển lời của thành viên thành lịch riêng có giờ, và cho biết khi nào người đó tách đoàn, khi nào nhập đoàn.','Dò xem lịch riêng có ảnh hưởng tới việc đã đặt không: Quân đã có vé Blue Lagoon, nên Sen hỏi có muốn nhờ trưởng đoàn đổi vé không.','Lịch riêng chỉ thay đổi lịch của Quân, lịch chung của đoàn giữ nguyên.'],
+ note:'<p>Lịch riêng hiện trên màn hình của chính người đó, trên dashboard của trưởng đoàn và trên Dashboard đoàn, để cả đoàn biết ai đang đi đâu.</p>',
+ screen:()=>`<div class="app"><div class="hd" style="min-height:170px;display:flex;flex-direction:column;justify-content:flex-end">${ART}<div class="bar" style="position:absolute;top:14px;left:16px;right:16px"><span class="meta" style="background:rgba(15,24,48,.7);padding:5px 10px;border-radius:999px">Reykjavik · 21.12 · −4°C, có bão</span>${av('QU',36)}</div><div class="ey">NGÀY 10 · THỨ HAI 21.12</div><div class="t1">Lịch hôm nay</div></div>
+  <div class="bd">
+   <div class="card" style="background:#FBEFE9;box-shadow:none"><div class="row" style="font-size:12px;font-weight:700;color:#8A3A26">${I.cal.replace('width="20" height="20"','width="16" height="16"')}<span>LỊCH HÔM NAY ĐÃ ĐỔI · TUẤN ANH CẬP NHẬT 21:40 TỐI QUA</span></div><div style="margin-top:4px;font-size:13.5px">Huỷ tour bờ biển phía Nam vì bão tuyết. Chiều đi Blue Lagoon.</div></div>
+   <div class="card"><ul class="list" style="font-size:13.5px">
+    <li><b style="flex:0 0 44px">Sáng</b><span class="grow">Nghỉ ở khách sạn</span><span class="chip info">Mới</span></li>
+    <li><b style="flex:0 0 44px">12:15</b><span class="grow">Xe đón đi Blue Lagoon</span><span class="chip info">Mới</span></li>
+    <li><b style="flex:0 0 44px">13:00</b><span class="grow">Blue Lagoon</span><span class="chip info">Mới</span></li>
+    <li><b style="flex:0 0 44px">19:00</b><span class="grow">Ăn tối gần khách sạn</span><span class="chip warn">Đổi chỗ</span></li></ul></div>
+   <div class="card" style="box-shadow:inset 0 0 0 2px #DCCDEA"><label class="lbl" for="d-mine" style="font-weight:700;color:#1B2333;font-size:14px">Anh/chị muốn đổi lịch riêng?</label>
+    <textarea id="d-mine" class="in" rows="5">Chiều nay em không đi Blue Lagoon, em ở lại đi nhà thờ Hallgrímskirkja và bảo tàng. 19:00 em gặp cả đoàn ở nhà hàng.</textarea>
+    <div class="sen" style="margin-top:8px">${LOTUS}<span>Em hiểu là: <b>12:15–19:00</b> anh/chị đi riêng ở Reykjavik, <b>19:00</b> nhập đoàn ăn tối. Anh/chị đã có vé Blue Lagoon, em nhờ trưởng đoàn hỏi đổi vé giúp nhé?</span></div>
+    <label class="row" style="margin-top:8px;font-size:13px"><input type="checkbox" checked style="width:20px;height:20px;accent-color:#5B2E7A">Nhờ trưởng đoàn hỏi đổi vé Blue Lagoon</label>
+    <button class="btn lotus hot" data-go="next" type="button" style="margin-top:10px">Gửi cho trưởng đoàn</button></div>
+  </div>${tabbar('Lịch trình')}</div>`},
+
+{ch:3,id:'lichrieng',title:'Trưởng đoàn nhận lịch riêng của thành viên',who:'TA',
+ say:'Trưởng đoàn được báo ngay, và Dashboard đoàn hiện rõ chiều nay ai đi cùng đoàn, ai đi riêng, mấy giờ nhập lại.',
+ do:['Đọc thông báo, bấm <b>Đã biết</b>, hoặc <b>Nhắn Quân</b> nếu cần trao đổi thêm.','Xử lý việc Sen gợi ý: hỏi nơi bán vé Blue Lagoon có đổi được không.'],
+ sen:['Ghi lịch riêng của Quân lên dashboard: sĩ số chiều nay 5/6, Quân nhập đoàn lúc 19:00.','Tạo việc "Hỏi đổi vé Blue Lagoon của Quân" cho trưởng đoàn.','Ghi nhớ để chia tiền đúng: chi tiêu chung buổi chiều chỉ tính cho người có đi.'],
+ note:'<p>Nếu nhiều người cùng xin đổi riêng một hoạt động, Sen gợi ý trưởng đoàn cân nhắc đổi luôn lịch chung.</p>',
+ screen:()=>`<div class="app"><div class="hd">${ART}<div class="bar"><span class="ib">${I.back}</span><span class="meta">Reykjavik · 21.12 · 08:10</span><span style="width:40px"></span></div><div class="ey" style="margin-top:40px">DASHBOARD ĐOÀN</div><div class="t1">Lịch hôm nay · ngày 10/12</div></div>
+  <div class="bd">
+   <div class="card" style="box-shadow:inset 0 0 0 2px #DCCDEA;margin-top:-26px;position:relative"><div class="row">${av('QU',32)}<span class="grow"><b>Quân đổi lịch riêng</b><div class="muted">5 phút trước</div></span></div>
+    <p style="margin:8px 0 0;font-size:13.5px">"Chiều nay em không đi Blue Lagoon, em ở lại đi nhà thờ Hallgrímskirkja và bảo tàng. 19:00 em gặp cả đoàn ở nhà hàng."</p>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn dark sm hot" data-go="next" type="button" style="flex:1">Đã biết</button><button class="btn sec sm" type="button" style="flex:1">Nhắn Quân</button></div></div>
+   <div class="card"><div class="row"><h4 class="grow">Lịch chung</h4><span class="chip ok">Chiều nay 5/6 người</span></div><ul class="list" style="font-size:13.5px;margin-top:4px">
+    <li><b style="flex:0 0 44px">Sáng</b><span class="grow">Nghỉ ở khách sạn</span><span class="muted">6/6</span></li>
+    <li><b style="flex:0 0 44px">12:15</b><span class="grow">Xe đón đi Blue Lagoon<div class="row" style="gap:6px;margin-top:4px">${av('QU',22)}<span class="muted" style="font-size:12px">Quân đi riêng 12:15–19:00</span></div></span><span class="muted">5/6</span></li>
+    <li><b style="flex:0 0 44px">19:00</b><span class="grow">Ăn tối gần khách sạn<div class="muted" style="font-size:12px">Quân nhập đoàn</div></span><span class="muted">6/6</span></li></ul></div>
+   <div class="sen">${LOTUS}<span>Em đã thêm việc <b>"Hỏi đổi vé Blue Lagoon của Quân"</b> cho anh/chị. Chi tiêu chung buổi chiều em sẽ chỉ chia cho 5 người có đi.</span></div>
+  </div>${tabbar('Đoàn')}</div>`},
+
+{ch:4,id:'ketthuc',title:'Kết thúc chuyến đi',who:'TA',
+ say:'Về nhà, trưởng đoàn chốt sổ quỹ, lưu trữ chuyến đi, và lưu danh mục giấy tờ làm mẫu cho chuyến sau.',
+ do:['Bấm <b>Chốt quỹ</b> để gửi bảng "ai chuyển cho ai" cuối cùng.','Bấm <b>Lưu trữ chuyến đi</b>.','Bấm <b>Lưu danh mục làm mẫu</b>.'],
+ sen:['Khoá Sheet chung, chuyển quyền của mọi người sang chỉ xem.','Lưu mẫu "Anh – Iceland mùa đông, có trẻ em" để lần sau chọn lại, không kèm dữ liệu của ai.'],
+ note:'<p>Ảnh và giấy tờ vẫn nằm nguyên trong Drive của từng người.</p>',
+ screen:()=>`<div class="app">${hd({art:1,ey:'ĐÃ VỀ NHÀ · 23.12',t:'Cảm ơn cả đoàn!',sub:'12 ngày · 3 nước · 312 ảnh · 58 hoá đơn'})}
+  <div class="bd">
+   <div class="card"><h4>Chốt quỹ</h4><ul class="list" style="font-size:13px;margin-top:6px"><li><span class="grow">Tổng đã chi</span><b>138,6 triệu</b></li><li><span class="grow">Hoàn lại mỗi phần</span><b>1,9 triệu</b></li></ul><button class="btn sec" type="button" style="margin-top:8px;min-height:42px">Gửi bảng chốt quỹ cho cả đoàn</button></div>
+   <div class="card" style="display:flex;flex-direction:column;gap:8px"><h4>Lưu lại</h4>
+    <label class="row" style="font-size:13.5px"><input type="checkbox" checked style="width:20px;height:20px;accent-color:#16213E">Lưu trữ chuyến đi (cả đoàn chỉ xem)</label>
+    <label class="row" style="font-size:13.5px"><input type="checkbox" checked style="width:20px;height:20px;accent-color:#16213E">Lưu danh mục giấy tờ làm mẫu "Anh – Iceland mùa đông, có trẻ em"</label></div>
+   <button class="btn pri hot" data-go="next" type="button">Hoàn tất</button>
+  </div></div>`},
+
+{ch:4,id:'nhatky',title:'Nhật ký chuyến đi',who:'TA',
+ say:'Sau chuyến đi, Sen soạn một cuốn nhật ký cho cả đoàn: mỗi ngày một trang, có lịch trình thực tế và những tấm ảnh đẹp nhất.',
+ do:['Mời mọi người thêm ảnh và vài dòng cảm nhận vào ngày bất kỳ.','Bấm <b>Chốt nhật ký</b> để lưu thành tài liệu chung.'],
+ sen:['Ghép lịch trình thực tế, đã tính các lần đổi lịch (ví dụ ngày 21.12 đổi sang Blue Lagoon vì bão tuyết).','Chọn vài ảnh đẹp mỗi ngày từ thư mục ảnh chung.','Làm trang tổng kết: số ngày, số thành phố, số ảnh, tổng chi theo hạng mục.'],
+ note:'<p>Nhật ký không chứa giấy tờ, số tiền của từng người hay tin nhắn riêng.</p>',
+ screen:()=>`<div class="app">${hd({art:1,ey:'NHẬT KÝ CHUYẾN ĐI',t:TRIP,sub:'12 ngày · 3 nước · 312 ảnh'})}
+  <div class="bd">
+   <div class="card" style="padding:0;overflow:hidden"><svg viewBox="0 0 320 140" style="display:block;width:100%;height:auto;background:#121B36" aria-hidden="true"><path d="M-10 70 C60 20 120 80 190 40 S300 10 340 50 L340 80 C300 50 240 80 190 72 S70 60 -10 100 Z" fill="#3FBF8F" opacity=".45"/><path d="M0 140 L70 90 L120 110 L190 70 Q210 60 230 70 L320 120 L320 140 Z" fill="#22335C"/><path d="M190 70 Q210 60 230 70 L238 78 L228 75 L219 83 L210 74 L201 84 L192 75 L182 79 Z" fill="#DCE2EE"/></svg>
+    <div style="padding:12px 14px"><div class="ey" style="color:#8A3A26">NGÀY 9 · 20.12 · REYKJAVIK</div><b>Đêm cực quang đầu tiên</b><div class="muted" style="margin-top:4px">Vòng Vàng buổi sáng, 21:40 cả đoàn thấy cực quang ở ngoại ô. Bông ngủ gật trên xe, Quân chụp được tấm đẹp nhất.</div><div class="row muted" style="margin-top:6px;font-size:12px"><span>28 ảnh</span><span>·</span><span>3 cảm nhận</span></div></div></div>
+   <div class="card"><h4>Mục lục</h4><ul class="list" style="font-size:13px;margin-top:4px">
+    <li><span class="grow">N1–N4 · London</span><span class="muted">96 ảnh</span></li>
+    <li><span class="grow">N5–N7 · Edinburgh, Cao nguyên</span><span class="muted">88 ảnh</span></li>
+    <li><span class="grow">N8–N12 · Iceland</span><span class="muted">128 ảnh</span></li>
+    <li><span class="grow">Tổng kết chuyến đi</span><span class="muted">›</span></li></ul></div>
+   <button class="btn pri hot" data-go="next" type="button">Chốt nhật ký cho cả đoàn</button>
+  </div></div>`},
+
+// ===== Ghi nhớ =====
+{ch:5,id:'ghinho',title:'Ghi nhớ nhanh',who:null,
+ say:'Tóm tắt những việc mỗi người cần nhớ.',
+ do:['<b>Trưởng đoàn:</b> kể về đoàn → bỏ tài liệu đại lý vào thư mục → duyệt bảng đối chiếu và yêu cầu Sen soạn → gửi link mời chung lên Zalo, duyệt từng người → xuất danh sách đoàn cho đại lý → điểm danh ở mỗi giờ tập trung → gõ lịch mới khi đã chốt thay đổi → chốt nhật ký chuyến đi.','<b>Thành viên:</b> bấm link mời chung → chọn tên mình, chờ duyệt → lưu Thẻ khẩn cấp trước ngày bay → bấm "Tôi đã có mặt" ở điểm tập trung → chụp hoặc ghi tình trạng từng mục còn thiếu → trong chuyến, xem "Hôm nay", chụp hoá đơn khi trả tiền chung, và gõ vào ô lịch riêng nếu muốn tách đoàn.'],
+ sen:['Đọc, sắp xếp, đặt tên, kiểm tra giấy tờ theo quy tắc chuyến đi (hộ chiếu, visa Anh, visa Schengen, bảo hiểm, vé).','Soạn yêu cầu bổ sung, phân luồng lời nhắn, tóm tắt mỗi sáng.','Hỏi lại khi chưa rõ, không bao giờ tự gửi.'],
+ note:'<p>Giấy tờ cá nhân ở Drive của từng người. Tin nhắn riêng chỉ người nhận thấy. Chuyện tiền nong luôn nhắn riêng.</p>',
+ screen:()=>`<div class="app">${hd({art:1,ey:'HÀNH TRANG',t:'Ba điều cần nhớ'})}
+  <div class="bd">
+   <div class="card row" style="align-items:flex-start"><span class="ico" style="background:#16213E;color:#fff;font-weight:700">1</span><span><b>Kể cho Sen nghe</b><div class="muted">Trưởng đoàn mô tả đoàn bằng lời. Sen lo phần sắp xếp và soạn việc.</div></span></div>
+   <div class="card row" style="align-items:flex-start"><span class="ico" style="background:#C63C23;color:#fff">${I.cam.replace('22','18').replace('22','18')}</span><span><b>Thiếu gì chụp nấy</b><div class="muted">Thành viên bấm máy ảnh cạnh mục còn thiếu, Sen đọc và báo cho đoàn.</div></span></div>
+   <div class="card row" style="align-items:flex-start"><span class="ico" style="background:#5B2E7A;color:#fff">${I.lock}</span><span><b>Riêng tư mặc định</b><div class="muted">Đoàn chỉ thấy Đủ/Thiếu. Giấy tờ và tin nhắn riêng không chia sẻ.</div></span></div>
+   <button class="btn dark hot" data-go="0" type="button">Xem lại từ đầu</button>
+  </div></div>`}
+];
+const CHAPTERS=['Giới thiệu','Trưởng đoàn chuẩn bị','Thành viên tham gia','Trong chuyến đi','Sau chuyến đi','Ghi nhớ'];
+const WHO={TA:['Trưởng đoàn · Tuấn Anh','#C6452C','TA'],LI:['Thành viên · Linh','#8A4B7A','L'],QU:['Thành viên · Quân','#5B6B3A','Q']};
+STEPS.forEach((s,i)=>{s.id=s.id.replace(/\s+/g,'');});
+
+// ---------- Hiển thị ----------
+const $=id=>document.getElementById(id);
+let cur=0;
+
+function buildNav(){
+  $('chapters').innerHTML=CHAPTERS.map((c,i)=>'<button type="button" data-ch="'+i+'">'+c+'</button>').join('');
+  let html='';
+  CHAPTERS.forEach((c,ci)=>{
+    html+='<h2>'+c+'</h2><ol>';
+    STEPS.forEach((s,i)=>{ if(s.ch===ci) html+='<li><button type="button" data-step="'+i+'"><span class="n">'+(i+1)+'</span><span>'+s.title+'</span></button></li>'; });
+    html+='</ol>';
+  });
+  $('steps').innerHTML=html;
+}
+
+function render(i,focusNarr){
+  cur=Math.max(0,Math.min(STEPS.length-1,i));
+  const s=STEPS[cur];
+  const scr=$('screen');
+  scr.innerHTML=s.screen();
+  scr.scrollTop=0;
+  $('n-chap').textContent=CHAPTERS[s.ch]+' · Bước '+(cur+1)+'/'+STEPS.length;
+  $('n-title').textContent=s.title;
+  const w=s.who&&WHO[s.who];
+  $('n-who').hidden=!w;
+  if(w) $('n-who').innerHTML='<span class="av" style="background:'+w[1]+'">'+w[2]+'</span>'+w[0];
+  $('n-say').textContent=s.say;
+  $('n-do').innerHTML=s.do.map(x=>'<li>'+x+'</li>').join('');
+  $('n-sen').innerHTML=s.sen.map(x=>'<li>'+x+'</li>').join('');
+  $('b-note').hidden=!s.note;
+  $('n-note').innerHTML=s.note||'';
+  $('devcap').textContent=w?('Màn hình của '+w[0].split(' · ')[1]):'Hành Trang';
+  $('count').textContent=(cur+1)+' / '+STEPS.length;
+  $('prev').disabled=cur===0;
+  $('next').textContent=cur===STEPS.length-1?'Về đầu':'Tiếp theo';
+  document.querySelectorAll('#chapters button').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.ch===s.ch)));
+  document.querySelectorAll('#steps button').forEach(b=>{const n=+b.dataset.step;b.classList.toggle('done',n<cur);if(n===cur){b.setAttribute('aria-current','step');}else{b.removeAttribute('aria-current');}});
+  const active=document.querySelector('#steps button[aria-current="step"]');
+  if(active&&getComputedStyle($('steps')).display!=='none'){const box=$('steps');const r=active.getBoundingClientRect(),br=box.getBoundingClientRect();if(r.top<br.top||r.bottom>br.bottom)box.scrollTop+=r.top-br.top-box.clientHeight/2;}
+  try{history.replaceState(null,'','#'+s.id);}catch(e){}
+  try{localStorage.setItem('ht-demo-step',String(cur));}catch(e){}
+  if(focusNarr) $('n-title').focus({preventScroll:true});
+}
+function go(t){
+  if(t==='next') render(cur===STEPS.length-1?0:cur+1);
+  else if(t==='prev') render(cur-1);
+  else render(+t);
+}
+
+document.addEventListener('click',e=>{
+  const hot=e.target.closest('#screen [data-go]');
+  if(hot){go(hot.dataset.go);return;}
+  const st=e.target.closest('[data-step]'); if(st){go(st.dataset.step);return;}
+  const ch=e.target.closest('[data-ch]'); if(ch){const idx=STEPS.findIndex(s=>s.ch===+ch.dataset.ch);go(idx);return;}
+});
+document.addEventListener('keydown',e=>{
+  const tag=(e.target.tagName||'').toLowerCase();
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('#screen [data-go][role="button"]')){e.preventDefault();go(e.target.dataset.go);return;}
+  if(tag==='input'||tag==='textarea') return;
+  if(e.key==='ArrowRight'){go('next');}
+  else if(e.key==='ArrowLeft'){go('prev');}
+});
+$('prev').addEventListener('click',()=>go('prev'));
+$('next').addEventListener('click',()=>go('next'));
+$('n-title').tabIndex=-1;
+
+buildNav();
+let start=0;
+const h=(location.hash||'').slice(1);
+const byHash=STEPS.findIndex(s=>s.id===h);
+if(byHash>=0) start=byHash;
+else { try{const v=parseInt(localStorage.getItem('ht-demo-step'),10); if(v>=0&&v<STEPS.length) start=v;}catch(e){} }
+render(start);
+})();
+</script>
+</body>
+</html>
